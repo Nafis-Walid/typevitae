@@ -1,0 +1,313 @@
+{
+  "header": {
+    "name": "Md Nafis Walid",
+    "includePhoto": false,
+    "photoPath": "photo.png",
+    "email": "nafis.ruet@gmail.com",
+    "phone": "+88 01934-960321",
+    "address": "DIT Project, Badda, Dhaka 1212",
+    "linkedin": "https://www.linkedin.com/in/nafis-walid/",
+    "linkedinLabel": "LinkedIn",
+    "github": "https://github.com/Nafis-Walid",
+    "githubLabel": "GitHub"
+  },
+  "sections": [
+    {
+      "id": "career_objective",
+      "title": "Career Objectives & Profiles",
+      "enabled": true,
+      "type": "profiles",
+      "profiles": [
+        {
+          "name": "Embedded Software Engineering (Industry)",
+          "enabled": true,
+          "text": "Embedded Software Engineer with hands-on experience in C-based firmware development for embedded networking devices. Strong foundation in embedded programming, networking protocols, system debugging, and problem-solving. Seeking to design, develop, and maintain reliable C/C++ embedded systems while continuously advancing my expertise in embedded software and computer architecture."
+        },
+        {
+          "name": "Academic & Higher Education (Lecturer in CSE)",
+          "enabled": true,
+          "text": "Passionate about teaching and committed to continuous learning, I seek a Lecturer position in Computer Science & Engineering at DIU. With experience mentoring university students locally and internationally, I strive to make complex topics accessible from multiple perspectives. My research interests in computer architecture, operating systems, and AI/ML motivate me to foster a research-driven environment and mentor students in innovative projects. I aim to contribute to DIU's academic excellence through engaging instruction, collaborative research, and student-centered mentorship."
+        },
+        {
+          "name": "Hardware Systems & Processor Architecture (VLSI)",
+          "enabled": true,
+          "text": "I have a strong interest in hardware-oriented system design and low-level computing, and I enjoy understanding how software concepts map onto real hardware. I have previously designed and implemented a working 4-bit CPU, including its control unit, memory module, and instruction set, which motivated me to explore deeper aspects of processor design beyond logic-level implementation. Through this course on Digital VLSI Physical Design, I aim to gain practical knowledge of physical design concepts and industry workflows that will help me progress toward my long-term goal of building complete CPU systems, including their ISA and supporting toolchains, with a solid foundation in real silicon implementation."
+        },
+        {
+          "name": "Human-Computer Interaction (HCI & Social Impact)",
+          "enabled": true,
+          "text": "I am interested in exploring why many people in Bangladesh are still unable to fully benefit from modern technology, even though technological growth has been very rapid lately. Through Human-Computer Interaction research, I want to observe these gaps from the perspective of users and society and explore solutions that people can actually use and benefit from. By engaging with HCCS, I hope to learn research methods, shape my ideas, and actively contribute to projects that address digital inequality."
+        }
+      ]
+    },
+    {
+      "id": "education",
+      "title": "Educational Qualification",
+      "enabled": true,
+      "type": "items_degree",
+      "items": [
+        {
+          "degree": "Bachelor of Science in Computer Science & Engineering",
+          "dates": "February, 2019 -- May, 2024",
+          "institution": "Rajshahi University of Engineering & Technology (RUET) | Kazla, Rajshahi",
+          "grade": "CGPA: 3.32/4.00"
+        },
+        {
+          "degree": "Higher Secondary Certificate (HSC) from Science Group",
+          "dates": "July, 2016 -- September, 2018",
+          "institution": "Milestone College | Uttara, Dhaka-1230",
+          "grade": "GPA: 5.00/5.00"
+        },
+        {
+          "degree": "Secondary School Certificate (SSC) from Science Group",
+          "dates": "January, 2014 -- May, 2016",
+          "institution": "Milestone College | Uttara, Dhaka-1230",
+          "grade": "GPA: 5.00/5.00"
+        }
+      ]
+    },
+    {
+      "id": "research_interests",
+      "title": "Research Interests",
+      "enabled": true,
+      "type": "text",
+      "text": "VLSI-based design for efficient computing architectures, Machine Learning and Deep Learning for hardware-accelerated applications, Large Language Models (LLMs), Natural Language Processing (NLP), Computer Vision, Generative Models, Handwritten Optical Character Recognition (HOCR), Human-Computer Interaction (HCI), and Satellite Image Analysis."
+    },
+    {
+      "id": "publications",
+      "title": "Research & Publications",
+      "enabled": true,
+      "type": "publications",
+      "items": [
+        {
+          "authors": "Shajnin Haque Aishy, Md Nafis Walid, Sadullah Karimi and Mohiuddin Ahmed",
+          "highlightAuthor": "Md Nafis Walid",
+          "title": "A Deep Learning Approach for Balancing Accuracy and Efficiency in Handwritten Mathematical Symbol Recognition",
+          "venue": "28th International Conference on Computer and Information Technology (ICCIT)",
+          "year": "2025"
+        }
+      ]
+    },
+    {
+      "id": "experience",
+      "title": "Professional Experience",
+      "enabled": true,
+      "type": "experience",
+      "items": [
+        {
+          "role": "Research & Development Engineer",
+          "company": "Shanghai BDCOM Information Technology Co., Ltd. (Bangladesh Office)",
+          "dates": "May, 2024 -- Present",
+          "bullets": [
+            "Developed and maintained C-based firmware for GPON/EPON ONU and Ethernet switch products on Linux- and VxWorks-based embedded platforms.",
+            "Designed and implemented a TFTP-based firmware upgrade solution for embedded Ethernet switch devices.",
+            "Implemented, customized, and validated networking features including DHCPv4, DHCPv6, PPPoE, IGMP, MLD, OMCI, TR-069, VLAN, and Ethernet switching.",
+            "Customized firmware for international ISP customers and ensured interoperability with Huawei and ZTE OLTs.",
+            "Implemented and validated multicast features including IGMP/MLD snooping, multicast VLAN, fast leave, static multicast groups, and multicast access control.",
+            "Investigated protocol-level issues using Wireshark, protocol analysis, and embedded CLI debugging to resolve customer-reported firmware defects.",
+            "Designed and executed functional, interoperability, and regression test cases for embedded networking features.",
+            "Conducted experimental systems projects in C (Student Information Management, Network Packet Management, BitMap Management) focusing on pointer manipulation, low-level data structures, and memory efficiency.",
+            "Used SVN for source code management, version control, and collaborative firmware development.",
+            "Collaborated with international customers and cross-functional teams to investigate firmware issues, provide technical support, and deliver customer-specific solutions."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "projects",
+      "title": "Projects",
+      "enabled": true,
+      "type": "projects",
+      "items": [
+        {
+          "name": "4-bit CPU Design",
+          "url": "https://github.com/Nafis-Walid/CPU-Design",
+          "bullets": [
+            "Designed and implemented a fully functional 4-bit CPU at the register-transfer level, including an ALU, register file, RAM, program counter, status flags, and an FSM-based control unit.",
+            "Designed a custom instruction set architecture (ISA) and assembly language, implementing the complete instruction fetch--decode--execute cycle.",
+            "Demonstrated strong understanding of computer architecture, digital logic design, datapath/control design, and hardware-software interaction."
+          ]
+        },
+        {
+          "name": "Network Packet Management",
+          "url": "https://github.com/Nafis-Walid/Network-Packet-Management",
+          "bullets": [
+            "Developed a packet management system in C to parse captured UDP packets into linked-list and hash-table data structures with reference counting and efficient packet lookup.",
+            "Applied low-level memory management, pointer manipulation, and data structure optimization for packet processing."
+          ]
+        },
+        {
+          "name": "Student Information Management",
+          "url": "https://github.com/Nafis-Walid/Student-Management-Project",
+          "bullets": [
+            "Developed a console-based student information management system in C using doubly linked lists and modular programming.",
+            "Implemented file-based persistent storage with complete CRUD operations for departments, students, and academic records."
+          ]
+        },
+        {
+          "name": "BitMap Set Library",
+          "url": "https://github.com/Nafis-Walid/BitMap",
+          "bullets": [
+            "Implemented a memory-efficient Bitmap Set Library in C supporting dynamic creation, cloning, value management, string parsing, and bitwise operations (NOT/AND/OR/XOR)."
+          ]
+        },
+        {
+          "name": "Handwritten Digit Recognizer",
+          "url": "https://github.com/Nafis-Walid/Hand-Written-Digit-Recognition.git",
+          "bullets": [
+            "An AI-based deep learning project using Python and Deep Neural Networks (DNN) for optical digit recognition."
+          ]
+        },
+        {
+          "name": "Re-Trip",
+          "url": "https://github.com/Nafis-Walid/CSE-3200-Project.git",
+          "bullets": [
+            "A web-based application designed to resell and manage train ticket reservations."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "teaching",
+      "title": "Teaching Experience",
+      "enabled": true,
+      "type": "teaching",
+      "items": [
+        {
+          "role": "Private Tutor & Academic Mentor",
+          "institution": "Independent; Caretutor (Online Platform)",
+          "dates": "November, 2018 -- Present",
+          "bullets": [
+            "Provided sustained academic mentoring to undergraduate and pre-university students in Computer Science, Engineering, and Mathematics, emphasizing analytical thinking, problem-solving, and strong programming fundamentals.",
+            "Taught core Computer Science courses including C/C++ Programming, Embedded Systems, Computer Networks, Database Systems, Digital Logic Design, Computer Architecture, Microprocessors & Assembly Language, and Peripherals & Interfacing.",
+            "Designed and demonstrated hands-on embedded C programming exercises involving GPIO, timers, UART communication, LCD interfacing, PWM-based LED breathing effects, DC motor control, and stepper motor control.",
+            "Delivered instruction in foundational and advanced mathematics, including Linear Algebra, Numerical Methods, Differential & Integral Calculus, and Ordinary/Partial Differential Equations.",
+            "Covered theoretical computer science topics such as Finite Automata, Formal Languages & Compiler Design, and Soft Computing, emphasizing formal reasoning and algorithmic thinking.",
+            "Mentored students from international universities, including the University of Bridgeport (USA) and the University of Wollongong (Australia), as well as leading universities in Bangladesh including NSU, AUST, and AIUB.",
+            "Conducted supplementary lectures and peer mentoring at the university level on challenging technical subjects.",
+            "Successfully guided HSC/SSC students and engineering admission candidates, with multiple students gaining admission to leading engineering universities in Bangladesh."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "skills",
+      "title": "Skills",
+      "enabled": true,
+      "type": "skills",
+      "categories": [
+        {
+          "title": "Technical Skills",
+          "items": [
+            {
+              "label": "Programming Languages",
+              "value": "C, C++, Embedded C, Python, Assembly (8086), Java, Matlab"
+            },
+            {
+              "label": "Embedded Systems & Firmware",
+              "value": "Embedded Firmware Development, Linux, VxWorks, GPON/EPON, Ethernet Switching, TFTP, CLI"
+            },
+            {
+              "label": "Networking Protocols",
+              "value": "TCP/IP, UDP, IPv4/IPv6, DHCPv4, DHCPv6, PPPoE, IGMP/MLD Snooping, OMCI, TR-069, VLAN, Multicast"
+            },
+            {
+              "label": "Web & Databases",
+              "value": "HTML, CSS, Bootstrap, JavaScript, MySQL, PostgreSQL"
+            },
+            {
+              "label": "AI & Machine Learning",
+              "value": "Deep Neural Networks (DNN), Convolutional Neural Networks (CNN), Machine Learning, Computer Vision"
+            },
+            {
+              "label": "Development Tools & Workspaces",
+              "value": "SVN, Git/GitHub, Wireshark, SecureCRT, GDB, GNU Make, Cisco Packet Tracer, Logisim, Digital, Tinkercad, Figma, Adobe XD, Adobe Illustrator, Adobe Photoshop, Microsoft Office"
+            },
+            {
+              "label": "Core Concepts",
+              "value": "Computer Architecture, Operating Systems, Data Structures & Algorithms, Digital Logic Design, Microprocessors & Microcontrollers, Compiler Design, Hardware-Software Co-Design, Object-Oriented Programming (OOP)"
+            }
+          ]
+        },
+        {
+          "title": "Problem Solving / Competitive Programming",
+          "items": [
+            {
+              "label": "Codeforces",
+              "value": "Nafis_Walid -- 380+ problems solved, 60+ contests",
+              "url": "https://codeforces.com/profile/Nafis_Walid"
+            },
+            {
+              "label": "LeetCode",
+              "value": "Nafis_Walid -- 100+ problems solved",
+              "url": "https://leetcode.com/u/Nafis_Walid/"
+            },
+            {
+              "label": "LightOJ",
+              "value": "nafis_walid",
+              "url": "https://lightoj.com/user/nafis_walid"
+            }
+          ]
+        },
+        {
+          "title": "Languages & Soft Skills",
+          "items": [
+            {
+              "label": "Languages",
+              "value": "Bengali (Native), English (Professional Working Proficiency)"
+            },
+            {
+              "label": "Soft Skills",
+              "value": "Problem Solving, Critical Thinking, Leadership, Team Collaboration, Technical Communication, Event Management"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "awards",
+      "title": "Achievements & Awards",
+      "enabled": true,
+      "type": "awards",
+      "items": [
+        {
+          "title": "Fundamental IT Engineer Examination (FE)",
+          "organization": "Bangladesh Computer Council (BCC) & Information Technology Promotion Agency (IPA), Japan",
+          "bullets": [
+            "Successfully passed the internationally recognized Fundamental IT Engineer Examination (FE) conducted through the Bangladesh IT Engineers Examination Center (BD-ITEC).",
+            "Awarded the Certificate of Excellence by the Information Technology Promotion Agency (IPA), Japan for achieving the 3rd highest score in Bangladesh."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "volunteer",
+      "title": "Volunteer Activities",
+      "enabled": true,
+      "type": "volunteer",
+      "items": [
+        {
+          "role": "Class Representative",
+          "dates": "January, 2020 -- February, 2023",
+          "bullets": [
+            "Department of Computer Science & Engineering, RUET"
+          ]
+        },
+        {
+          "role": "Graphics Designer",
+          "dates": "February, 2020 -- June, 2023",
+          "bullets": [
+            "Astronomy & Science Society of RUET(ASSR)"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "references",
+      "title": "References",
+      "enabled": true,
+      "type": "text",
+      "text": "Available upon request."
+    }
+  ]
+}

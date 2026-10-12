@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TypeVitaeProfile",
+  "type": "object",
+  "required": ["header", "sections"],
+  "properties": {
+    "header": {
+      "type": "object",
+      "required": ["name", "email", "phone"],
+      "properties": {
+        "name": { "type": "string" },
+        "includePhoto": { "type": "boolean" },
+        "photoPath": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "address": { "type": "string" },
+        "linkedin": { "type": "string" },
+        "linkedinLabel": { "type": "string" },
+        "github": { "type": "string" },
+        "githubLabel": { "type": "string" }
+      }
+    },
+    "activePreset": {
+      "type": "string",
+      "enum": ["master", "industry", "academic", "compact", "custom"]
+    },
+    "sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "enabled", "type"],
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "enabled": { "type": "boolean" },
+          "type": {
+            "type": "string",
+            "enum": ["profiles", "items_degree", "text", "publications", "experience", "projects", "teaching", "skills", "awards", "volunteer"]
+          }
+        }
+      }
+    }
+  }
+}

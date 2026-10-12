@@ -1,0 +1,14 @@
+{
+  "name": "typevitae",
+  "version": "1.0.0",
+  "description": "Professional-Grade LaTeX CV & Resume Engineering Studio",
+  "type": "module",
+  "main": "server.mjs",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "keywords": ["latex", "cv", "resume", "pdf", "minimalist"],
+  "author": "Nafis Walid",
+  "license": "MIT"
+}
