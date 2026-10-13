@@ -261,9 +261,11 @@ const isDirectExecution = process.argv[1] && (
   process.argv[1].endsWith('server.mjs')
 );
 
+const HOST = process.env.HOST || '0.0.0.0';
+
 if (isDirectExecution) {
-  server.listen(PORT, '127.0.0.1', () => {
-    console.log(`TypeVitae Enterprise Server listening at http://127.0.0.1:${PORT}`);
+  server.listen(PORT, HOST, () => {
+    console.log(`TypeVitae Enterprise Server listening at http://${HOST}:${PORT}`);
   });
 }
 

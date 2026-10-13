@@ -33,9 +33,9 @@ RUN mkdir -p /app/build_cache /app/data/profiles && \
 # Hugging Face Spaces runs as user ID 1000 by default
 USER 1000
 
-# Default port: Hugging Face Spaces uses 7860
-ENV PORT=7860
-EXPOSE 7860
+# Default port: 10000 for Render / container hosting
+ENV PORT=10000
+EXPOSE 10000
 
 # Start TypeVitae server
 CMD ["node", "server.mjs"]
