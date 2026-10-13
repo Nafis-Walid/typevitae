@@ -15,6 +15,9 @@ const State = {
   isCompiling: false,
   isSaving: false,
   hasBackend: false,
+  activeBuildId: null,
+  pdfUrl: '/api/pdf',
+  mobileTab: 'editor',
 };
 
 // Fallback Presets Definition
@@ -86,12 +89,25 @@ const DOM = {
   btnAddCustomSectionTop: document.getElementById('btnAddCustomSectionTop'),
   btnAddCustomSectionBottom: document.getElementById('btnAddCustomSectionBottom'),
 
-  // PDF Preview
+  // PDF Preview & Universal Controls
   pdfViewerWrapper: document.getElementById('pdfViewerWrapper'),
   pdfFrame: document.getElementById('pdfFrame'),
   backendOfflineOverlay: document.getElementById('backendOfflineOverlay'),
-  btnOpenSystem: document.getElementById('btnOpenSystem'),
+  btnOpenNewTab: document.getElementById('btnOpenNewTab'),
+  btnDownloadPdf: document.getElementById('btnDownloadPdf'),
   btnRefreshPdf: document.getElementById('btnRefreshPdf'),
+
+  // Mobile Tab Switcher
+  tabBtnEditor: document.getElementById('tabBtnEditor'),
+  tabBtnPreview: document.getElementById('tabBtnPreview'),
+  mobileCompileDot: document.getElementById('mobileCompileDot'),
+
+  // JSON Backup & Portability
+  btnExportJson: document.getElementById('btnExportJson'),
+  btnImportJson: document.getElementById('btnImportJson'),
+  jsonFileInput: document.getElementById('jsonFileInput'),
+  btnModalExportJson: document.getElementById('btnModalExportJson'),
+  btnModalImportJson: document.getElementById('btnModalImportJson'),
 
   compilingOverlay: document.getElementById('compilingOverlay'),
   errorDrawer: document.getElementById('errorDrawer'),
@@ -155,6 +171,7 @@ function showToast(message, type = 'info', duration = 3000) {
 // Initialize Application
 async function init() {
   setupEventListeners();
+  setupMobileTabs();
   await checkBackendConnection();
   await loadPresets();
   await loadProfilesList();
@@ -184,6 +201,9 @@ async function checkBackendConnection() {
   }
   DOM.latencyDot.className = 'w-2 h-2 rounded-full bg-neutral-600';
   DOM.latencyText.textContent = 'Static Cloud';
+  if (DOM.mobileCompileDot) {
+    DOM.mobileCompileDot.className = 'w-2 h-2 rounded-full bg-neutral-600 ml-0.5';
+  }
   return false;
 }
 
@@ -206,8 +226,27 @@ function setupEventListeners() {
   // Action Buttons
   DOM.btnCompile.addEventListener('click', () => compileProfile());
   DOM.btnSaveProfile.addEventListener('click', () => saveProfile());
-  DOM.btnOpenSystem.addEventListener('click', () => openInNativePreview());
+  if (DOM.btnOpenNewTab) {
+    DOM.btnOpenNewTab.addEventListener('click', () => openInNewTab());
+  }
   DOM.btnRefreshPdf.addEventListener('click', () => refreshPdfFrame());
+
+  // JSON Backup & Portability Listeners
+  if (DOM.btnExportJson) {
+    DOM.btnExportJson.addEventListener('click', () => exportProfileJson());
+  }
+  if (DOM.btnImportJson) {
+    DOM.btnImportJson.addEventListener('click', () => importProfileJson());
+  }
+  if (DOM.jsonFileInput) {
+    DOM.jsonFileInput.addEventListener('change', handleJsonFileSelect);
+  }
+  if (DOM.btnModalExportJson) {
+    DOM.btnModalExportJson.addEventListener('click', () => exportProfileJson());
+  }
+  if (DOM.btnModalImportJson) {
+    DOM.btnModalImportJson.addEventListener('click', () => importProfileJson());
+  }
 
   // Zoom Controls
   DOM.btnZoomIn.addEventListener('click', () => adjustZoom(10));
@@ -467,6 +506,9 @@ async function compileProfile() {
   DOM.compilingOverlay.classList.add('flex');
   DOM.latencyDot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
   DOM.latencyText.textContent = 'Building...';
+  if (DOM.mobileCompileDot) {
+    DOM.mobileCompileDot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse ml-0.5';
+  }
 
   const t0 = performance.now();
 
@@ -484,19 +526,35 @@ async function compileProfile() {
       const latency = result.latencyMs || elapsed;
       DOM.latencyDot.className = 'w-2 h-2 rounded-full bg-emerald-500 pulse-dot';
       DOM.latencyText.textContent = `${latency}ms`;
+      if (DOM.mobileCompileDot) {
+        DOM.mobileCompileDot.className = 'w-2 h-2 rounded-full bg-emerald-500 pulse-dot ml-0.5';
+      }
       DOM.errorDrawer.classList.add('hidden');
+
+      // Universal PDF URL tracking
+      State.activeBuildId = result.buildId;
+      State.pdfUrl = result.pdfUrl || (result.buildId ? `/api/pdf?id=${result.buildId}` : `/api/pdf?id=${Date.now()}`);
+      DOM.pdfFrame.src = State.pdfUrl;
+      if (DOM.btnDownloadPdf) {
+        DOM.btnDownloadPdf.href = State.pdfUrl;
+      }
       
-      refreshPdfFrame();
       showToast(`⚡ Built in ${latency}ms`);
     } else {
       DOM.latencyDot.className = 'w-2 h-2 rounded-full bg-red-500';
       DOM.latencyText.textContent = 'Error';
+      if (DOM.mobileCompileDot) {
+        DOM.mobileCompileDot.className = 'w-2 h-2 rounded-full bg-red-500 ml-0.5';
+      }
       displayCompileError(result.error || result.log || 'Compilation failed');
       showToast('LaTeX build failed', 'error');
     }
   } catch (err) {
     DOM.latencyDot.className = 'w-2 h-2 rounded-full bg-red-500';
     DOM.latencyText.textContent = 'Error';
+    if (DOM.mobileCompileDot) {
+      DOM.mobileCompileDot.className = 'w-2 h-2 rounded-full bg-red-500 ml-0.5';
+    }
     displayCompileError(err.message);
     showToast(`Compile error: ${err.message}`, 'error');
   } finally {
@@ -517,22 +575,125 @@ function displayCompileError(errorText) {
 function refreshPdfFrame() {
   if (!State.hasBackend) return;
   const timestamp = Date.now();
-  DOM.pdfFrame.src = `/api/pdf?t=${timestamp}#toolbar=0&navpanes=0`;
+  State.pdfUrl = State.activeBuildId ? `/api/pdf?id=${State.activeBuildId}&t=${timestamp}` : `/api/pdf?t=${timestamp}`;
+  DOM.pdfFrame.src = State.pdfUrl;
+  if (DOM.btnDownloadPdf) {
+    DOM.btnDownloadPdf.href = State.pdfUrl;
+  }
 }
 
-// Open in Native macOS Preview.app
-async function openInNativePreview() {
-  try {
-    const res = await fetch('/api/open-system', { method: 'POST' });
-    const data = await res.json();
-    if (data.success) {
-      showToast('Opened in macOS Preview.app');
-    } else {
-      showToast(data.error || 'Failed to open Preview', 'error');
-    }
-  } catch (err) {
-    showToast(`Error: ${err.message}`, 'error');
+// Universal Open in New Tab (Cross-platform on Windows, Mac, Linux, Android, iOS)
+function openInNewTab() {
+  const url = State.pdfUrl || '/api/pdf';
+  window.open(url, '_blank', 'noopener,noreferrer');
+}
+
+// Mobile View Switching (< 1024px)
+function setupMobileTabs() {
+  document.body.dataset.mobileTab = State.mobileTab;
+  if (DOM.tabBtnEditor) {
+    DOM.tabBtnEditor.addEventListener('click', () => switchMobileTab('editor'));
   }
+  if (DOM.tabBtnPreview) {
+    DOM.tabBtnPreview.addEventListener('click', () => switchMobileTab('preview'));
+  }
+}
+
+function switchMobileTab(tab) {
+  State.mobileTab = tab;
+  document.body.dataset.mobileTab = tab;
+
+  if (DOM.tabBtnEditor && DOM.tabBtnPreview) {
+    if (tab === 'editor') {
+      DOM.tabBtnEditor.classList.add('active');
+      DOM.tabBtnEditor.classList.remove('text-stitch-gray700');
+      DOM.tabBtnPreview.classList.remove('active');
+      DOM.tabBtnPreview.classList.add('text-stitch-gray700');
+    } else {
+      DOM.tabBtnPreview.classList.add('active');
+      DOM.tabBtnPreview.classList.remove('text-stitch-gray700');
+      DOM.tabBtnEditor.classList.remove('active');
+      DOM.tabBtnEditor.classList.add('text-stitch-gray700');
+    }
+  }
+}
+
+// Universal JSON Backup & Portability
+function exportProfileJson() {
+  if (!State.currentProfile) {
+    showToast('No active profile data to export', 'error');
+    return;
+  }
+  try {
+    const dataStr = 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(State.currentProfile, null, 2));
+    const dlAnchor = document.createElement('a');
+    const filename = `${State.currentProfileId || 'typevitae_cv'}_backup.json`;
+    dlAnchor.setAttribute('href', dataStr);
+    dlAnchor.setAttribute('download', filename);
+    document.body.appendChild(dlAnchor);
+    dlAnchor.click();
+    dlAnchor.remove();
+    showToast(`Exported ${filename}`);
+  } catch (err) {
+    showToast(`Export failed: ${err.message}`, 'error');
+  }
+}
+
+function importProfileJson() {
+  if (DOM.jsonFileInput) {
+    DOM.jsonFileInput.click();
+  }
+}
+
+async function handleJsonFileSelect(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = async (evt) => {
+    try {
+      const parsed = JSON.parse(evt.target.result);
+      if (!parsed || typeof parsed !== 'object') {
+        throw new Error('Invalid JSON format');
+      }
+      if (!parsed.header && !parsed.sections) {
+        throw new Error('Missing profile schema (must contain header or sections)');
+      }
+
+      State.currentProfile = parsed;
+      if (parsed.activePreset) {
+        State.activePreset = parsed.activePreset;
+      }
+
+      // Persist in localStorage
+      try {
+        localStorage.setItem(`typevitae_profile_${State.currentProfileId}`, JSON.stringify(parsed));
+      } catch (storageErr) {}
+
+      // Persist to server if backend connected
+      if (State.hasBackend) {
+        try {
+          await fetch(`/api/profile?id=${encodeURIComponent(State.currentProfileId)}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(parsed, null, 2)
+          });
+        } catch (serverErr) {}
+      }
+
+      renderAll();
+      showToast(`Imported ${file.name} successfully!`);
+
+      if (State.hasBackend) {
+        compileProfile();
+      }
+    } catch (err) {
+      showToast(`Import error: ${err.message}`, 'error', 4500);
+    } finally {
+      e.target.value = '';
+    }
+  };
+  reader.readAsText(file);
 }
 
 // Photo Upload Handler

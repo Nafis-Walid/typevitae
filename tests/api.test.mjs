@@ -17,7 +17,7 @@ import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { server } from '../server.mjs';
+import { server, reapBuildCache } from '../server.mjs';
 
 const PROFILES_DIR = path.resolve('data/profiles');
 const ACTIVE_PROFILE_PATH = path.join(PROFILES_DIR, 'active.json');
@@ -142,7 +142,9 @@ describe('HTTP API - Profile State Mutation (CRUD)', () => {
 });
 
 describe('HTTP API - LaTeX Compilation Pipeline & PDF Delivery', () => {
-  it('POST /api/compile compiles profile to PDF successfully', async () => {
+  let lastBuildId;
+
+  it('POST /api/compile compiles profile to PDF successfully with isolated buildId', async () => {
     const sampleProfile = JSON.parse(fs.readFileSync(DEFAULT_PROFILE_PATH, 'utf-8'));
 
     const res = await fetch(`${baseUrl}/api/compile`, {
@@ -156,16 +158,38 @@ describe('HTTP API - LaTeX Compilation Pipeline & PDF Delivery', () => {
 
     const data = await res.json();
     assert.equal(data.success, true, `Compilation failed: ${data.error}`);
+    assert.ok(data.buildId, 'Result must contain unique buildId');
+    assert.equal(data.pdfUrl, `/api/pdf?id=${data.buildId}`, 'Result pdfUrl must reference buildId');
     assert.ok(data.pdfPath);
     assert.ok(data.pdfSize > 50000, `PDF size must be > 50KB, got ${data.pdfSize}`);
     assert.ok(data.durationMs >= 0);
     assert.ok(data.pageCount >= 1);
+    lastBuildId = data.buildId;
   });
 
-  it('GET /api/pdf streams valid binary PDF with correct MIME and magic bytes', async () => {
+  it('POST /api/compile accepts client-provided sessionId / buildId', async () => {
+    const sampleProfile = JSON.parse(fs.readFileSync(DEFAULT_PROFILE_PATH, 'utf-8'));
+    const customBuildId = 'build_custom_qa_session_999';
+
+    const res = await fetch(`${baseUrl}/api/compile`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...sampleProfile, buildId: customBuildId })
+    });
+
+    assert.equal(res.status, 200);
+    const data = await res.json();
+    assert.equal(data.success, true);
+    assert.equal(data.buildId, customBuildId);
+    assert.equal(data.pdfUrl, `/api/pdf?id=${customBuildId}`);
+    assert.ok(fs.existsSync(path.resolve(`build_cache/${customBuildId}.pdf`)));
+  });
+
+  it('GET /api/pdf streams fallback binary PDF without id parameter', async () => {
     const res = await fetch(`${baseUrl}/api/pdf`);
     assert.equal(res.status, 200);
     assert.ok(res.headers.get('content-type').includes('application/pdf'));
+    assert.equal(res.headers.get('access-control-allow-origin'), '*');
 
     const arrayBuffer = await res.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
@@ -173,6 +197,31 @@ describe('HTTP API - LaTeX Compilation Pipeline & PDF Delivery', () => {
     assert.ok(buffer.length > 50000, `PDF payload should be > 50KB, got ${buffer.length}`);
     const magicHeader = buffer.subarray(0, 4).toString('utf-8');
     assert.equal(magicHeader, '%PDF', 'PDF stream must start with %PDF magic header');
+  });
+
+  it('GET /api/pdf?id=... streams isolated binary PDF for specific buildId', async () => {
+    assert.ok(lastBuildId, 'lastBuildId must be defined');
+    const res = await fetch(`${baseUrl}/api/pdf?id=${lastBuildId}`);
+    assert.equal(res.status, 200);
+    assert.ok(res.headers.get('content-type').includes('application/pdf'));
+    assert.equal(res.headers.get('access-control-allow-origin'), '*');
+
+    const arrayBuffer = await res.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    assert.ok(buffer.length > 50000);
+    const magicHeader = buffer.subarray(0, 4).toString('utf-8');
+    assert.equal(magicHeader, '%PDF');
+  });
+
+  it('GET /api/pdf protects against directory traversal attacks', async () => {
+    const res = await fetch(`${baseUrl}/api/pdf?id=../../../../etc/passwd`);
+    assert.equal(res.status, 404);
+  });
+
+  it('POST /api/open-system has been removed and returns 404 Not Found', async () => {
+    const res = await fetch(`${baseUrl}/api/open-system`, { method: 'POST' });
+    assert.equal(res.status, 404);
   });
 });
 
@@ -215,3 +264,56 @@ describe('HTTP API - Static Assets, CORS & Edge Cases', () => {
     assert.equal(res.status, 404);
   });
 });
+
+describe('Automated Cache Reaper - Retention & Cleanup', () => {
+  it('purges temp build files older than 1 hour while preserving .gitkeep, templates, and active.json', () => {
+    const cacheDir = path.resolve('build_cache');
+    const oldTime = Date.now() - (2 * 60 * 60 * 1000); // 2 hours ago
+
+    // Create preserved files
+    const gitkeepFile = path.join(cacheDir, '.gitkeep');
+    if (!fs.existsSync(gitkeepFile)) fs.writeFileSync(gitkeepFile, '', 'utf-8');
+    fs.utimesSync(gitkeepFile, oldTime / 1000, oldTime / 1000);
+
+    const styFile = path.join(cacheDir, 'typevitae.sty');
+    if (fs.existsSync(styFile)) fs.utimesSync(styFile, oldTime / 1000, oldTime / 1000);
+
+    const activeJsonFile = path.join(cacheDir, 'active.json');
+    fs.writeFileSync(activeJsonFile, '{"preserved": true}', 'utf-8');
+    fs.utimesSync(activeJsonFile, oldTime / 1000, oldTime / 1000);
+
+    // Create expired temp build files
+    const oldTempFile1 = path.join(cacheDir, 'build_test_reaper_old.pdf');
+    fs.writeFileSync(oldTempFile1, '%PDF dummy', 'utf-8');
+    fs.utimesSync(oldTempFile1, oldTime / 1000, oldTime / 1000);
+
+    const oldTempFile2 = path.join(cacheDir, 'build_test_reaper_old.tex');
+    fs.writeFileSync(oldTempFile2, '\\documentclass{article}', 'utf-8');
+    fs.utimesSync(oldTempFile2, oldTime / 1000, oldTime / 1000);
+
+    // Create a fresh temp file (< 1 hour)
+    const freshTempFile = path.join(cacheDir, 'build_test_reaper_fresh.pdf');
+    fs.writeFileSync(freshTempFile, '%PDF fresh', 'utf-8');
+
+    // Run reaper
+    const purged = reapBuildCache(cacheDir, 60 * 60 * 1000);
+    assert.ok(purged >= 2, `Expected at least 2 purged files, got ${purged}`);
+
+    // Verify expired files deleted
+    assert.equal(fs.existsSync(oldTempFile1), false, 'Old build PDF should be deleted');
+    assert.equal(fs.existsSync(oldTempFile2), false, 'Old build TeX should be deleted');
+
+    // Verify fresh file preserved
+    assert.equal(fs.existsSync(freshTempFile), true, 'Fresh build PDF should be retained');
+    fs.unlinkSync(freshTempFile);
+
+    // Verify preserved files remain
+    assert.equal(fs.existsSync(gitkeepFile), true, '.gitkeep must be preserved');
+    if (fs.existsSync(styFile)) {
+      assert.equal(fs.existsSync(styFile), true, 'typevitae.sty must be preserved');
+    }
+    assert.equal(fs.existsSync(activeJsonFile), true, 'active.json must be preserved');
+    fs.unlinkSync(activeJsonFile);
+  });
+});
+

@@ -226,7 +226,8 @@ export async function compileTex(texContent, options = {}) {
   const outputDir = path.resolve(options.outputDir || DEFAULT_CACHE_DIR);
   const templatesDir = path.resolve(options.templatesDir || DEFAULT_TEMPLATES_DIR);
   const photoPath = options.photoPath ? path.resolve(options.photoPath) : DEFAULT_PHOTO_PATH;
-  const jobName = options.jobName || 'typevitae';
+  const rawJobName = options.jobName || 'typevitae';
+  const jobName = String(rawJobName).replace(/[^a-zA-Z0-9_-]/g, '') || 'typevitae';
   const force = options.force === true;
 
   if (!fs.existsSync(outputDir)) {
@@ -263,6 +264,7 @@ export async function compileTex(texContent, options = {}) {
       if (meta.hash === currentHash && pdfStat.size > 0) {
         return {
           success: true,
+          jobName,
           pdfPath,
           pdfSize: pdfStat.size,
           durationMs: 0,
@@ -294,7 +296,7 @@ export async function compileTex(texContent, options = {}) {
   const env = {
     ...process.env,
     PATH: buildTexPathEnv(),
-    TEXINPUTS: `.:${templatesDir}:${path.dirname(photoPath)}//:`,
+    TEXINPUTS: `.:${outputDir}:${templatesDir}:${path.dirname(photoPath)}//:`,
     max_print_line: '10000'
   };
 
@@ -341,8 +343,17 @@ export async function compileTex(texContent, options = {}) {
           // Ignore cache write errors
         }
 
+        // Clean intermediate auxiliary files for this specific job to prevent clutter
+        for (const ext of ['.aux', '.out', '.toc']) {
+          const auxFile = path.join(outputDir, `${jobName}${ext}`);
+          if (fs.existsSync(auxFile)) {
+            try { fs.unlinkSync(auxFile); } catch {}
+          }
+        }
+
         resolve({
           success: true,
+          jobName,
           pdfPath,
           pdfSize,
           durationMs,
@@ -357,6 +368,7 @@ export async function compileTex(texContent, options = {}) {
 
         resolve({
           success: false,
+          jobName,
           error: primaryError,
           errors: parsedLog.errors,
           durationMs,
@@ -412,9 +424,32 @@ export function cleanBuildCache(cacheDir = DEFAULT_CACHE_DIR) {
   }
 }
 
+/**
+ * Cleans temporary compilation artifacts for a specific job in build_cache/.
+ * 
+ * @param {string} jobName
+ * @param {string} [cacheDir]
+ */
+export function cleanJobArtifacts(jobName, cacheDir = DEFAULT_CACHE_DIR) {
+  if (!jobName || !fs.existsSync(cacheDir)) return;
+  const safeJob = String(jobName).replace(/[^a-zA-Z0-9_-]/g, '');
+  if (!safeJob) return;
+  for (const ext of ['.aux', '.out', '.toc', '.log', '.tex']) {
+    const file = path.join(cacheDir, `${safeJob}${ext}`);
+    if (fs.existsSync(file)) {
+      try {
+        fs.unlinkSync(file);
+      } catch {
+        // Ignore file locks
+      }
+    }
+  }
+}
+
 export default {
   compileProfile,
   compileTex,
   parseLatexLog,
-  cleanBuildCache
+  cleanBuildCache,
+  cleanJobArtifacts
 };

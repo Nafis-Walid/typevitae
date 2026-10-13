@@ -480,14 +480,76 @@ body {
   cursor: not-allowed;
 }
 
-/* Responsive Split screen */
-@media (max-width: 1024px) {
+/* Mobile View Switcher */
+.mobile-tab-btn {
+  color: var(--stitch-gray700);
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.mobile-tab-btn:hover {
+  color: var(--stitch-black);
+}
+
+.mobile-tab-btn.active {
+  background-color: var(--stitch-white);
+  color: var(--stitch-black);
+  border-color: var(--stitch-border);
+  box-shadow: var(--shadow-crisp);
+  font-weight: 700;
+}
+
+/* Universal Cross-Platform Responsive Layout (< 1024px) */
+@media (max-width: 1023.98px) {
   #splitLayout {
-    flex-direction: column;
-    overflow-y: auto;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    height: 100% !important;
   }
-  #leftEditorPanel, #rightPreviewPanel {
+
+  #leftEditorPanel,
+  #rightPreviewPanel {
     width: 100% !important;
-    height: auto !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    height: 100% !important;
+    flex: 1 1 100% !important;
+    border-right: none !important;
+  }
+
+  body[data-mobile-tab="editor"] #rightPreviewPanel {
+    display: none !important;
+  }
+
+  body[data-mobile-tab="editor"] #leftEditorPanel {
+    display: flex !important;
+  }
+
+  body[data-mobile-tab="preview"] #leftEditorPanel {
+    display: none !important;
+  }
+
+  body[data-mobile-tab="preview"] #rightPreviewPanel {
+    display: flex !important;
   }
 }
+
+/* Desktop Split Screen (>= 1024px) */
+@media (min-width: 1024px) {
+  #splitLayout {
+    flex-direction: row !important;
+  }
+
+  #leftEditorPanel {
+    display: flex !important;
+  }
+
+  #rightPreviewPanel {
+    display: flex !important;
+  }
+}
+

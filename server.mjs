@@ -1,7 +1,7 @@
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
-import { exec } from 'node:child_process';
+import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -13,6 +13,59 @@ const CACHE_DIR = path.join(__dirname, 'build_cache');
 
 if (!fs.existsSync(PROFILES_DIR)) fs.mkdirSync(PROFILES_DIR, { recursive: true });
 if (!fs.existsSync(CACHE_DIR)) fs.mkdirSync(CACHE_DIR, { recursive: true });
+
+const CACHE_REAPER_INTERVAL_MS = 15 * 60 * 1000; // 15 minutes
+const CACHE_MAX_AGE_MS = 60 * 60 * 1000;         // 1 hour
+
+/**
+ * Automated background cache reaper that purges temp build files in build_cache/
+ * older than 1 hour while preserving .gitkeep, templates (*.sty, template files),
+ * active.json, and typevitae.pdf fallback.
+ */
+function reapBuildCache(cacheDir = CACHE_DIR, maxAgeMs = CACHE_MAX_AGE_MS) {
+  if (!fs.existsSync(cacheDir)) return 0;
+  const now = Date.now();
+  let purgedCount = 0;
+
+  try {
+    const entries = fs.readdirSync(cacheDir);
+    for (const file of entries) {
+      if (
+        file === '.gitkeep' ||
+        file === 'active.json' ||
+        file === 'typevitae.sty' ||
+        file === 'typevitae.pdf' ||
+        file.endsWith('.sty') ||
+        file.includes('template')
+      ) {
+        continue;
+      }
+
+      const filePath = path.join(cacheDir, file);
+      try {
+        const stat = fs.statSync(filePath);
+        if (stat.isFile() && (now - stat.mtimeMs > maxAgeMs)) {
+          fs.unlinkSync(filePath);
+          purgedCount++;
+        }
+      } catch {
+        // Skip inaccessible or already deleted files
+      }
+    }
+  } catch (err) {
+    console.error('Error in reapBuildCache:', err.message);
+  }
+
+  return purgedCount;
+}
+
+const reaperTimer = setInterval(() => {
+  reapBuildCache(CACHE_DIR, CACHE_MAX_AGE_MS);
+}, CACHE_REAPER_INTERVAL_MS);
+
+if (reaperTimer && typeof reaperTimer.unref === 'function') {
+  reaperTimer.unref();
+}
 
 function sendJson(res, statusCode, data) {
   res.writeHead(statusCode, {
@@ -175,8 +228,18 @@ const server = http.createServer(async (req, res) => {
   if (pathname === '/api/compile' && req.method === 'POST') {
     try {
       let bodyData = await parseJsonBody(req);
+
+      // Support client-provided sessionId or buildId or generate unique build identifier
+      const clientBuildId = (bodyData && (bodyData.buildId || bodyData.sessionId)) ||
+                            urlObj.searchParams.get('buildId') ||
+                            urlObj.searchParams.get('sessionId');
+      const sanitizedClientBuildId = (clientBuildId && typeof clientBuildId === 'string')
+        ? clientBuildId.replace(/[^a-zA-Z0-9_-]/g, '')
+        : '';
+      const buildId = sanitizedClientBuildId || ('build_' + Date.now() + '_' + crypto.randomBytes(4).toString('hex'));
+
       const activePath = path.join(PROFILES_DIR, 'active.json');
-      if (Object.keys(bodyData).length > 0) {
+      if (bodyData && Object.keys(bodyData).length > 0) {
         fs.writeFileSync(activePath, JSON.stringify(bodyData, null, 2), 'utf-8');
       } else if (fs.existsSync(activePath)) {
         bodyData = JSON.parse(fs.readFileSync(activePath, 'utf-8'));
@@ -186,11 +249,42 @@ const server = http.createServer(async (req, res) => {
       const compilerModule = await import(`./latex_engine/compiler.mjs?t=${Date.now()}`);
       const result = await compilerModule.compileProfile(bodyData, {
         outputDir: CACHE_DIR,
+        jobName: buildId,
         templatesDir: path.join(__dirname, 'latex_engine/templates'),
         photoPath: path.join(DATA_DIR, 'photo.png')
       });
 
-      return sendJson(res, 200, result);
+      if (!result.success) {
+        return sendJson(res, 200, {
+          success: false,
+          buildId,
+          error: result.error || 'Compilation failed',
+          errors: result.errors || [],
+          durationMs: result.durationMs || 0,
+          warnings: result.warnings || []
+        });
+      }
+
+      // Maintain typevitae.pdf fallback for backward compatibility
+      if (result.pdfPath && fs.existsSync(result.pdfPath)) {
+        try {
+          fs.copyFileSync(result.pdfPath, path.join(CACHE_DIR, 'typevitae.pdf'));
+        } catch {
+          // Non-critical fallback copy
+        }
+      }
+
+      return sendJson(res, 200, {
+        success: true,
+        buildId,
+        pdfUrl: `/api/pdf?id=${buildId}`,
+        durationMs: result.durationMs,
+        pageCount: result.pageCount,
+        cached: result.cached,
+        warnings: result.warnings || [],
+        pdfPath: result.pdfPath,
+        pdfSize: result.pdfSize
+      });
     } catch (err) {
       return sendJson(res, 500, { success: false, error: err.message });
     }
@@ -198,7 +292,20 @@ const server = http.createServer(async (req, res) => {
 
   // 8. API: Stream PDF
   if (pathname === '/api/pdf' && (req.method === 'GET' || req.method === 'HEAD')) {
-    const pdfPath = path.join(CACHE_DIR, 'typevitae.pdf');
+    const rawId = urlObj.searchParams.get('id');
+    let targetFilename;
+
+    if (rawId !== null && rawId !== undefined) {
+      const sanitizedId = rawId.replace(/[^a-zA-Z0-9_-]/g, '');
+      if (!sanitizedId) {
+        return sendJson(res, 404, { error: 'Invalid build ID' });
+      }
+      targetFilename = `${sanitizedId}.pdf`;
+    } else {
+      targetFilename = 'typevitae.pdf';
+    }
+
+    const pdfPath = path.join(CACHE_DIR, targetFilename);
     if (fs.existsSync(pdfPath)) {
       res.writeHead(200, {
         'Content-Type': 'application/pdf',
@@ -209,20 +316,6 @@ const server = http.createServer(async (req, res) => {
       return fs.createReadStream(pdfPath).pipe(res);
     }
     return sendJson(res, 404, { error: 'PDF not generated yet' });
-  }
-
-  // 9. API: Open in macOS System Viewer
-  if (pathname === '/api/open-system' && req.method === 'POST') {
-    const pdfPath = path.join(CACHE_DIR, 'typevitae.pdf');
-    if (fs.existsSync(pdfPath)) {
-      exec(`open "${pdfPath}"`, (err) => {
-        if (err) return sendJson(res, 500, { error: err.message });
-        return sendJson(res, 200, { success: true });
-      });
-    } else {
-      return sendJson(res, 404, { error: 'PDF not found' });
-    }
-    return;
   }
 
   // 10. API: Upload Photo
@@ -270,5 +363,13 @@ if (isDirectExecution) {
   });
 }
 
-export { server, PRESETS, PORT };
+export {
+  server,
+  PRESETS,
+  PORT,
+  reapBuildCache,
+  reaperTimer,
+  CACHE_REAPER_INTERVAL_MS,
+  CACHE_MAX_AGE_MS
+};
 export default server;
