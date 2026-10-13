@@ -14,6 +14,7 @@ const State = {
   zoomLevel: 100,
   isCompiling: false,
   isSaving: false,
+  hasBackend: false,
 };
 
 // Fallback Presets Definition
@@ -88,6 +89,7 @@ const DOM = {
   // PDF Preview
   pdfViewerWrapper: document.getElementById('pdfViewerWrapper'),
   pdfFrame: document.getElementById('pdfFrame'),
+  backendOfflineOverlay: document.getElementById('backendOfflineOverlay'),
   btnOpenSystem: document.getElementById('btnOpenSystem'),
   btnRefreshPdf: document.getElementById('btnRefreshPdf'),
 
@@ -153,9 +155,36 @@ function showToast(message, type = 'info', duration = 3000) {
 // Initialize Application
 async function init() {
   setupEventListeners();
+  await checkBackendConnection();
   await loadPresets();
   await loadProfilesList();
   await loadProfile('default_nafis');
+}
+
+// Verify whether LaTeX compilation backend is active
+async function checkBackendConnection() {
+  try {
+    const res = await fetch('/api/presets');
+    const contentType = res.headers.get('content-type') || '';
+    if (res.ok && contentType.includes('application/json')) {
+      State.hasBackend = true;
+      if (DOM.backendOfflineOverlay) {
+        DOM.backendOfflineOverlay.classList.add('hidden');
+        DOM.backendOfflineOverlay.classList.remove('flex');
+      }
+      refreshPdfFrame();
+      return true;
+    }
+  } catch (e) {}
+
+  State.hasBackend = false;
+  if (DOM.backendOfflineOverlay) {
+    DOM.backendOfflineOverlay.classList.remove('hidden');
+    DOM.backendOfflineOverlay.classList.add('flex');
+  }
+  DOM.latencyDot.className = 'w-2 h-2 rounded-full bg-neutral-600';
+  DOM.latencyText.textContent = 'Static Cloud';
+  return false;
 }
 
 // Setup Event Listeners
@@ -418,6 +447,15 @@ async function saveProfile() {
 
 // Compile & Build PDF via local TeX Live pdflatex
 async function compileProfile() {
+  if (!State.hasBackend) {
+    showToast('Static Cloudflare Pages cannot run pdflatex binary. Please use local engine (http://127.0.0.1:4200) or Docker cloud.', 'error', 5000);
+    if (DOM.backendOfflineOverlay) {
+      DOM.backendOfflineOverlay.classList.remove('hidden');
+      DOM.backendOfflineOverlay.classList.add('flex');
+    }
+    return;
+  }
+
   if (State.isCompiling) return;
   State.isCompiling = true;
 
@@ -477,6 +515,7 @@ function displayCompileError(errorText) {
 }
 
 function refreshPdfFrame() {
+  if (!State.hasBackend) return;
   const timestamp = Date.now();
   DOM.pdfFrame.src = `/api/pdf?t=${timestamp}#toolbar=0&navpanes=0`;
 }
