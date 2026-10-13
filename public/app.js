@@ -14,7 +14,6 @@ const State = {
   zoomLevel: 100,
   isCompiling: false,
   isSaving: false,
-  currentTab: 'live' // 'live', 'pdf', 'tex'
 };
 
 // Fallback Presets Definition
@@ -86,22 +85,9 @@ const DOM = {
   btnAddCustomSectionTop: document.getElementById('btnAddCustomSectionTop'),
   btnAddCustomSectionBottom: document.getElementById('btnAddCustomSectionBottom'),
 
-  // Preview Tabs & Views
-  tabLivePreview: document.getElementById('tabLivePreview'),
-  tabPdfPreview: document.getElementById('tabPdfPreview'),
-  tabTexSource: document.getElementById('tabTexSource'),
-  liveResumeWrapper: document.getElementById('liveResumeWrapper'),
-  liveResumeContainer: document.getElementById('liveResumeContainer'),
+  // PDF Preview
   pdfViewerWrapper: document.getElementById('pdfViewerWrapper'),
   pdfFrame: document.getElementById('pdfFrame'),
-  texSourceWrapper: document.getElementById('texSourceWrapper'),
-  texSourceCode: document.getElementById('texSourceCode'),
-
-  // Actions
-  btnPrintResume: document.getElementById('btnPrintResume'),
-  btnOpenOverleaf: document.getElementById('btnOpenOverleaf'),
-  btnExportTex: document.getElementById('btnExportTex'),
-  btnCopyTex: document.getElementById('btnCopyTex'),
   btnOpenSystem: document.getElementById('btnOpenSystem'),
   btnRefreshPdf: document.getElementById('btnRefreshPdf'),
 
@@ -186,29 +172,13 @@ function setupEventListeners() {
       e.preventDefault();
       compileProfile();
     }
-    // Cmd+P or Ctrl+P: Print / Save Vector PDF
-    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'p') {
-      e.preventDefault();
-      printResume();
-    }
   });
 
   // Action Buttons
   DOM.btnCompile.addEventListener('click', () => compileProfile());
   DOM.btnSaveProfile.addEventListener('click', () => saveProfile());
-  if (DOM.btnOpenSystem) DOM.btnOpenSystem.addEventListener('click', () => openInNativePreview());
-  if (DOM.btnRefreshPdf) DOM.btnRefreshPdf.addEventListener('click', () => refreshPdfFrame());
-
-  // View Tabs
-  if (DOM.tabLivePreview) DOM.tabLivePreview.addEventListener('click', () => switchTab('live'));
-  if (DOM.tabPdfPreview) DOM.tabPdfPreview.addEventListener('click', () => switchTab('pdf'));
-  if (DOM.tabTexSource) DOM.tabTexSource.addEventListener('click', () => switchTab('tex'));
-
-  // Header & Export Actions
-  if (DOM.btnPrintResume) DOM.btnPrintResume.addEventListener('click', () => printResume());
-  if (DOM.btnOpenOverleaf) DOM.btnOpenOverleaf.addEventListener('click', () => openInOverleaf());
-  if (DOM.btnExportTex) DOM.btnExportTex.addEventListener('click', () => exportTexSource());
-  if (DOM.btnCopyTex) DOM.btnCopyTex.addEventListener('click', () => copyTexSource());
+  DOM.btnOpenSystem.addEventListener('click', () => openInNativePreview());
+  DOM.btnRefreshPdf.addEventListener('click', () => refreshPdfFrame());
 
   // Zoom Controls
   DOM.btnZoomIn.addEventListener('click', () => adjustZoom(10));
@@ -252,7 +222,6 @@ function setupEventListeners() {
     el.addEventListener('input', (e) => {
       if (State.currentProfile && State.currentProfile.header) {
         State.currentProfile.header[prop] = e.target.value;
-        scheduleLiveUpdate();
       }
     });
   });
@@ -261,7 +230,6 @@ function setupEventListeners() {
   DOM.hdrIncludePhoto.addEventListener('change', (e) => {
     if (State.currentProfile && State.currentProfile.header) {
       State.currentProfile.header.includePhoto = e.target.checked;
-      scheduleLiveUpdate();
     }
   });
 
@@ -288,14 +256,8 @@ function setupEventListeners() {
 
   // Event Delegation for Sections List
   DOM.sectionsList.addEventListener('click', handleSectionDelegatedClick);
-  DOM.sectionsList.addEventListener('input', (e) => {
-    handleSectionDelegatedInput(e);
-    scheduleLiveUpdate();
-  });
-  DOM.sectionsList.addEventListener('change', (e) => {
-    handleSectionDelegatedChange(e);
-    scheduleLiveUpdate();
-  });
+  DOM.sectionsList.addEventListener('input', handleSectionDelegatedInput);
+  DOM.sectionsList.addEventListener('change', handleSectionDelegatedChange);
 }
 
 // Zoom Management
@@ -454,7 +416,7 @@ async function saveProfile() {
   }
 }
 
-// Compile & Build PDF (Dual-Mode: Local pdfTeX + Cloud Instant Live Preview)
+// Compile & Build PDF via local TeX Live pdflatex
 async function compileProfile() {
   if (State.isCompiling) return;
   State.isCompiling = true;
@@ -468,10 +430,6 @@ async function compileProfile() {
   DOM.latencyDot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
   DOM.latencyText.textContent = 'Building...';
 
-  // Instant client-side render
-  renderLiveResume();
-  updateTexSourceView();
-
   const t0 = performance.now();
 
   try {
@@ -481,35 +439,28 @@ async function compileProfile() {
       body: JSON.stringify(State.currentProfile)
     });
 
-    if (res.ok) {
-      const result = await res.json();
-      const elapsed = Math.round(performance.now() - t0);
+    const result = await res.json();
+    const elapsed = Math.round(performance.now() - t0);
 
-      if (result.success) {
-        const latency = result.latencyMs || elapsed;
-        DOM.latencyDot.className = 'w-2 h-2 rounded-full bg-emerald-500 pulse-dot';
-        DOM.latencyText.textContent = `${latency}ms`;
-        DOM.errorDrawer.classList.add('hidden');
-        
-        refreshPdfFrame();
-        showToast(`⚡ Built in ${latency}ms (pdfTeX)`);
-        return;
-      } else {
-        DOM.latencyDot.className = 'w-2 h-2 rounded-full bg-red-500';
-        DOM.latencyText.textContent = 'Error';
-        displayCompileError(result.error || result.log || 'Compilation failed');
-        showToast('LaTeX build failed', 'error');
-        return;
-      }
+    if (result.success) {
+      const latency = result.latencyMs || elapsed;
+      DOM.latencyDot.className = 'w-2 h-2 rounded-full bg-emerald-500 pulse-dot';
+      DOM.latencyText.textContent = `${latency}ms`;
+      DOM.errorDrawer.classList.add('hidden');
+      
+      refreshPdfFrame();
+      showToast(`⚡ Built in ${latency}ms`);
+    } else {
+      DOM.latencyDot.className = 'w-2 h-2 rounded-full bg-red-500';
+      DOM.latencyText.textContent = 'Error';
+      displayCompileError(result.error || result.log || 'Compilation failed');
+      showToast('LaTeX build failed', 'error');
     }
-    throw new Error('Cloud mode');
   } catch (err) {
-    // Fallback for Cloudflare Pages / Offline: Instant Live View
-    DOM.latencyDot.className = 'w-2 h-2 rounded-full bg-emerald-500';
-    DOM.latencyText.textContent = 'Cloud Mode';
-    DOM.errorDrawer.classList.add('hidden');
-    switchTab('live');
-    showToast('Live Web Resume & LaTeX Source Updated');
+    DOM.latencyDot.className = 'w-2 h-2 rounded-full bg-red-500';
+    DOM.latencyText.textContent = 'Error';
+    displayCompileError(err.message);
+    showToast(`Compile error: ${err.message}`, 'error');
   } finally {
     State.isCompiling = false;
     DOM.btnCompile.disabled = false;
@@ -530,110 +481,6 @@ function refreshPdfFrame() {
   DOM.pdfFrame.src = `/api/pdf?t=${timestamp}#toolbar=0&navpanes=0`;
 }
 
-// Tab Switching
-function switchTab(tab) {
-  State.currentTab = tab;
-  if (!DOM.tabLivePreview || !DOM.tabPdfPreview || !DOM.tabTexSource) return;
-
-  const activeBtnClass = 'px-2 py-0.5 text-[11px] font-semibold rounded bg-neutral-800 text-white transition';
-  const inactiveBtnClass = 'px-2 py-0.5 text-[11px] font-medium rounded text-neutral-400 hover:text-white transition';
-
-  DOM.tabLivePreview.className = tab === 'live' ? activeBtnClass : inactiveBtnClass;
-  DOM.tabPdfPreview.className = tab === 'pdf' ? activeBtnClass : inactiveBtnClass;
-  DOM.tabTexSource.className = tab === 'tex' ? activeBtnClass : inactiveBtnClass;
-
-  if (tab === 'live') {
-    DOM.liveResumeWrapper.classList.remove('hidden');
-    DOM.pdfViewerWrapper.classList.add('hidden');
-    DOM.pdfViewerWrapper.classList.remove('flex');
-    DOM.texSourceWrapper.classList.add('hidden');
-    DOM.texSourceWrapper.classList.remove('flex');
-    renderLiveResume();
-  } else if (tab === 'pdf') {
-    DOM.liveResumeWrapper.classList.add('hidden');
-    DOM.pdfViewerWrapper.classList.remove('hidden');
-    DOM.pdfViewerWrapper.classList.add('flex');
-    DOM.texSourceWrapper.classList.add('hidden');
-    DOM.texSourceWrapper.classList.remove('flex');
-    refreshPdfFrame();
-  } else if (tab === 'tex') {
-    DOM.liveResumeWrapper.classList.add('hidden');
-    DOM.pdfViewerWrapper.classList.add('hidden');
-    DOM.pdfViewerWrapper.classList.remove('flex');
-    DOM.texSourceWrapper.classList.remove('hidden');
-    DOM.texSourceWrapper.classList.add('flex');
-    updateTexSourceView();
-  }
-}
-
-// Print / Save as PDF
-function printResume() {
-  switchTab('live');
-  setTimeout(() => window.print(), 100);
-}
-
-// Open directly in Overleaf (Cloud LaTeX)
-function openInOverleaf() {
-  const tex = generateClientLatex(State.currentProfile, State.activePreset);
-  const form = document.createElement('form');
-  form.method = 'POST';
-  form.action = 'https://www.overleaf.com/docs';
-  form.target = '_blank';
-
-  const snipInput = document.createElement('input');
-  snipInput.type = 'hidden';
-  snipInput.name = 'snip';
-  snipInput.value = tex;
-  form.appendChild(snipInput);
-
-  const nameInput = document.createElement('input');
-  nameInput.type = 'hidden';
-  nameInput.name = 'snip_name';
-  nameInput.value = 'TypeVitae_CV.tex';
-  form.appendChild(nameInput);
-
-  document.body.appendChild(form);
-  form.submit();
-  document.body.removeChild(form);
-  showToast('Opening Overleaf Cloud LaTeX ↗');
-}
-
-// Download .tex source file
-function exportTexSource() {
-  const tex = generateClientLatex(State.currentProfile, State.activePreset);
-  const blob = new Blob([tex], { type: 'text/x-tex;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  const safeName = (State.currentProfile?.header?.name || 'TypeVitae').replace(/\s+/g, '_');
-  a.href = url;
-  a.download = `${safeName}_CV.tex`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  showToast('Downloaded LaTeX source (.tex)');
-}
-
-// Copy LaTeX to Clipboard
-function copyTexSource() {
-  const tex = generateClientLatex(State.currentProfile, State.activePreset);
-  navigator.clipboard.writeText(tex).then(() => {
-    showToast('LaTeX source copied to clipboard');
-  }).catch(() => {
-    showToast('Failed to copy to clipboard', 'error');
-  });
-}
-
-// Debounced live update
-let liveUpdateTimer = null;
-function scheduleLiveUpdate() {
-  if (liveUpdateTimer) clearTimeout(liveUpdateTimer);
-  liveUpdateTimer = setTimeout(() => {
-    renderLiveResume();
-    updateTexSourceView();
-  }, 100);
-}
-
 // Open in Native macOS Preview.app
 async function openInNativePreview() {
   try {
@@ -649,7 +496,7 @@ async function openInNativePreview() {
   }
 }
 
-// Photo Upload Handler (Local Server + In-Browser DataURL Cloud Fallback)
+// Photo Upload Handler
 async function handlePhotoUpload(e) {
   const file = e.target.files[0];
   if (!file) return;
@@ -659,15 +506,6 @@ async function handlePhotoUpload(e) {
     DOM.photoPreviewImg.src = evt.target.result;
     DOM.photoPreviewImg.classList.remove('hidden');
     DOM.photoPlaceholder.classList.add('hidden');
-
-    if (State.currentProfile && State.currentProfile.header) {
-      State.currentProfile.header.photoDataUrl = evt.target.result;
-      State.currentProfile.header.photoPath = 'photo.png';
-      State.currentProfile.header.includePhoto = true;
-      DOM.hdrIncludePhoto.checked = true;
-      renderLiveResume();
-      updateTexSourceView();
-    }
   };
   reader.readAsDataURL(file);
 
@@ -679,12 +517,17 @@ async function handlePhotoUpload(e) {
     });
 
     if (res.ok) {
-      showToast('Candidate photo saved to server & profile');
+      if (State.currentProfile && State.currentProfile.header) {
+        State.currentProfile.header.photoPath = 'photo.png';
+        State.currentProfile.header.includePhoto = true;
+        DOM.hdrIncludePhoto.checked = true;
+      }
+      showToast('Candidate photo uploaded successfully');
     } else {
-      showToast('Candidate photo updated in browser (Cloud Mode)');
+      showToast('Photo upload failed on server', 'error');
     }
   } catch (err) {
-    showToast('Candidate photo updated in browser (Cloud Mode)');
+    showToast(`Upload error: ${err.message}`, 'error');
   }
 }
 
@@ -712,8 +555,6 @@ function applyPreset(presetKey) {
 
   updatePresetButtonsUI();
   renderSections();
-  renderLiveResume();
-  updateTexSourceView();
   showToast(`Preset activated: ${preset.name || presetKey}`);
 }
 
@@ -732,8 +573,6 @@ function renderAll() {
   renderHeader();
   updatePresetButtonsUI();
   renderSections();
-  renderLiveResume();
-  updateTexSourceView();
 }
 
 // Render Header Card
@@ -759,344 +598,6 @@ function renderHeader() {
     DOM.photoPreviewImg.classList.add('hidden');
     DOM.photoPlaceholder.classList.remove('hidden');
   }
-}
-
-// =========================================================================
-// Client-Side LaTeX Engine & Live Resume Renderers
-// =========================================================================
-
-function escapeLatexClient(str) {
-  if (typeof str !== 'string') return '';
-  return str
-    .replace(/\\/g, '\\textbackslash{}')
-    .replace(/&/g, '\\&')
-    .replace(/%/g, '\\%')
-    .replace(/\$/g, '\\$')
-    .replace(/#/g, '\\#')
-    .replace(/_/g, '\\_')
-    .replace(/\{/g, '\\{')
-    .replace(/\}/g, '\\}')
-    .replace(/~/g, '\\textasciitilde{}')
-    .replace(/\^/g, '\\textasciicircum{}');
-}
-
-function generateClientLatex(profile, presetKey = 'master') {
-  if (!profile || !profile.header) return '% No profile loaded';
-
-  const hdr = profile.header;
-  const name = escapeLatexClient(hdr.name || 'Curriculum Vitae');
-  const email = escapeLatexClient(hdr.email || '');
-  const phone = escapeLatexClient(hdr.phone || '');
-  const address = escapeLatexClient(hdr.address || '');
-  const linkedin = hdr.linkedin || '';
-  const linkedinLabel = escapeLatexClient(hdr.linkedinLabel || 'LinkedIn');
-  const github = hdr.github || '';
-  const githubLabel = escapeLatexClient(hdr.githubLabel || 'GitHub');
-
-  const preset = State.presets[presetKey] || DEFAULT_PRESETS[presetKey] || DEFAULT_PRESETS.master;
-  const allowedSections = new Set(preset.enabledSections || []);
-
-  let sectionsLatex = '';
-  const sections = profile.sections || [];
-
-  for (const sec of sections) {
-    if (sec.enabled === false || !allowedSections.has(sec.id)) continue;
-    const secTitle = escapeLatexClient(sec.title || sec.id);
-
-    if (sec.type === 'profiles') {
-      const activeObj = (sec.profiles || []).find(p => p.enabled !== false && (!preset.objectiveProfiles || preset.objectiveProfiles.includes(p.name)));
-      if (activeObj && activeObj.text) {
-        sectionsLatex += `\n\\section{${secTitle}}\n\\noindent\\carrObj{${escapeLatexClient(activeObj.text)}}\n`;
-      }
-    } else if (sec.type === 'items_degree') {
-      sectionsLatex += `\n\\section{${secTitle}}\n`;
-      for (const item of (sec.items || [])) {
-        const deg = escapeLatexClient(item.degree || '');
-        const inst = escapeLatexClient(item.institution || '');
-        const dates = escapeLatexClient(item.dates || '');
-        const grade = escapeLatexClient(item.grade || '');
-        const details = escapeLatexClient(item.details || '');
-        sectionsLatex += `\\edu{${deg}}{${inst}}{${dates}}{${grade}}{${details}}\n`;
-      }
-    } else if (sec.type === 'experience') {
-      sectionsLatex += `\n\\section{${secTitle}}\n`;
-      for (const item of (sec.items || [])) {
-        const role = escapeLatexClient(item.role || '');
-        const comp = escapeLatexClient(item.company || '');
-        const dates = escapeLatexClient(item.dates || '');
-        const bullets = (item.bullets || []).filter(b => b.trim()).map(b => `  \\item ${escapeLatexClient(b)}`).join('\n');
-        sectionsLatex += `\\profExp{${role}}{${comp}}{${dates}}{\n\\begin{itemize}\n${bullets}\n\\end{itemize}\n}\n`;
-      }
-    } else if (sec.type === 'projects') {
-      sectionsLatex += `\n\\section{${secTitle}}\n`;
-      for (const item of (sec.items || [])) {
-        const pTitle = escapeLatexClient(item.title || '');
-        const tools = escapeLatexClient(item.tools || '');
-        const link = item.link || '';
-        const bullets = (item.bullets || []).filter(b => b.trim()).map(b => `  \\item ${escapeLatexClient(b)}`).join('\n');
-        sectionsLatex += `\\project{${pTitle}}{${tools}}{\\href{${link}}{${link}}}{\n\\begin{itemize}\n${bullets}\n\\end{itemize}\n}\n`;
-      }
-    } else if (sec.type === 'publications') {
-      sectionsLatex += `\n\\section{${secTitle}}\n\\begin{enumerate}\n`;
-      for (const item of (sec.items || [])) {
-        const authors = escapeLatexClient(item.authors || '');
-        const pTitle = escapeLatexClient(item.title || '');
-        const venue = escapeLatexClient(item.venue || '');
-        const year = escapeLatexClient(item.year || '');
-        const doi = item.doi ? `\\href{${item.doi}}{${escapeLatexClient(item.doi)}}` : '';
-        sectionsLatex += `  \\item ${authors} (${year}). \\textbf{${pTitle}}. \\textit{${venue}}. ${doi}\n`;
-      }
-      sectionsLatex += `\\end{enumerate}\n`;
-    } else if (sec.type === 'skills') {
-      sectionsLatex += `\n\\section{${secTitle}}\n\\begin{itemize}[leftmargin=*]\n`;
-      for (const cat of (sec.categories || [])) {
-        const cName = escapeLatexClient(cat.category || '');
-        const cItems = Array.isArray(cat.items) ? cat.items.map(escapeLatexClient).join(', ') : escapeLatexClient(cat.items || '');
-        sectionsLatex += `  \\item \\textbf{${cName}:} ${cItems}\n`;
-      }
-      sectionsLatex += `\\end{itemize}\n`;
-    } else if (sec.type === 'awards') {
-      sectionsLatex += `\n\\section{${secTitle}}\n`;
-      for (const item of (sec.items || [])) {
-        const aTitle = escapeLatexClient(item.title || '');
-        const org = escapeLatexClient(item.organization || '');
-        const dates = escapeLatexClient(item.dates || '');
-        const note = escapeLatexClient(item.note || '');
-        sectionsLatex += `\\award{${aTitle}}{${org}}{${dates}}{${note}}\n`;
-      }
-    } else if (sec.type === 'volunteer') {
-      sectionsLatex += `\n\\section{${secTitle}}\n`;
-      for (const item of (sec.items || [])) {
-        const role = escapeLatexClient(item.role || '');
-        const org = escapeLatexClient(item.organization || '');
-        const dates = escapeLatexClient(item.dates || '');
-        const bullets = (item.bullets || []).filter(b => b.trim()).map(b => `  \\item ${escapeLatexClient(b)}`).join('\n');
-        sectionsLatex += `\\activity{${role}}{${org}}{${dates}}{\n\\begin{itemize}\n${bullets}\n\\end{itemize}\n}\n`;
-      }
-    } else {
-      sectionsLatex += `\n\\section{${secTitle}}\n\\noindent ${escapeLatexClient(sec.text || '')}\n`;
-    }
-  }
-
-  const headerCommand = hdr.includePhoto
-    ? `\\cvheaderwithphoto{${name}}{${email}}{${phone}}{${address}}{${linkedin}}{${linkedinLabel}}{${github}}{${githubLabel}}{photo.png}`
-    : `\\cvheader{${name}}{${email}}{${phone}}{${address}}{${linkedin}}{${linkedinLabel}}{${github}}{${githubLabel}}`;
-
-  return `% =========================================================================
-% TypeVitae CV Operating System - Deterministic Typographic Document
-% Preset: ${preset.name || presetKey} | Client-Side Engine
-% =========================================================================
-
-\\documentclass[10pt,a4paper]{article}
-
-% ATS-Friendly Glyphs & Unicode Mapping
-\\input{glyphtounicode}
-\\pdfgentounicode=1
-
-% Core Typographic Style
-\\usepackage{typevitae}
-\\renewcommand{\\familydefault}{\\sfdefault}
-\\geometry{top=1.3cm, bottom=1.3cm, left=1.2cm, right=1.2cm}
-
-% ATS / PDF Semantic Tagging & Metadata
-\\hypersetup{
-  pdftitle={${name} - Curriculum Vitae},
-  pdfauthor={${name}},
-  pdfsubject={Curriculum Vitae / Professional Resume},
-  pdfkeywords={Curriculum Vitae, Resume, Engineering, TypeVitae},
-  pdfcreator={TypeVitae Monochrome Studio},
-  hidelinks
-}
-
-\\begin{document}
-
-${headerCommand}
-${sectionsLatex}
-\\end{document}
-`;
-}
-
-function updateTexSourceView() {
-  if (!DOM.texSourceCode) return;
-  DOM.texSourceCode.textContent = generateClientLatex(State.currentProfile, State.activePreset);
-}
-
-function renderLiveResume() {
-  if (!DOM.liveResumeContainer || !State.currentProfile) return;
-
-  const profile = State.currentProfile;
-  const hdr = profile.header || {};
-  const preset = State.presets[State.activePreset] || DEFAULT_PRESETS[State.activePreset] || DEFAULT_PRESETS.master;
-  const allowedSections = new Set(preset.enabledSections || []);
-
-  const photoSrc = hdr.photoDataUrl || (hdr.photoPath ? 'photo.png' : '');
-
-  // Header HTML
-  let headerHtml = `
-    <div class="cv-page">
-      <div class="flex items-start justify-between gap-6 pb-2 border-b-2 border-black">
-        <div class="flex-1">
-          <h1 class="cv-header-name">${escapeHtml(hdr.name || 'Your Name')}</h1>
-          <div class="cv-contact-bar">
-            ${hdr.email ? `<span>✉ <a href="mailto:${escapeHtml(hdr.email)}">${escapeHtml(hdr.email)}</a></span>` : ''}
-            ${hdr.phone ? `<span>☎ ${escapeHtml(hdr.phone)}</span>` : ''}
-            ${hdr.address ? `<span>📍 ${escapeHtml(hdr.address)}</span>` : ''}
-            ${hdr.linkedin ? `<span>in <a href="${escapeHtml(hdr.linkedin)}" target="_blank">${escapeHtml(hdr.linkedinLabel || 'LinkedIn')}</a></span>` : ''}
-            ${hdr.github ? `<span>⌨ <a href="${escapeHtml(hdr.github)}" target="_blank">${escapeHtml(hdr.githubLabel || 'GitHub')}</a></span>` : ''}
-          </div>
-        </div>
-        ${hdr.includePhoto && photoSrc ? `
-          <div class="shrink-0">
-            <img src="${escapeHtml(photoSrc)}" alt="Photo" class="w-20 h-20 rounded-full object-cover border-2 border-black shadow-sm">
-          </div>
-        ` : ''}
-      </div>
-  `;
-
-  // Sections HTML
-  let sectionsHtml = '<div class="space-y-4 pt-1">';
-  const sections = profile.sections || [];
-
-  for (const sec of sections) {
-    if (sec.enabled === false || !allowedSections.has(sec.id)) continue;
-
-    sectionsHtml += `
-      <section class="cv-section">
-        <h2 class="cv-section-title">${escapeHtml(sec.title || sec.id)}</h2>
-    `;
-
-    if (sec.type === 'profiles') {
-      const activeObj = (sec.profiles || []).find(p => p.enabled !== false && (!preset.objectiveProfiles || preset.objectiveProfiles.includes(p.name)));
-      if (activeObj && activeObj.text) {
-        sectionsHtml += `<p class="text-[12px] text-neutral-800 leading-relaxed">${escapeHtml(activeObj.text)}</p>`;
-      }
-    } else if (sec.type === 'items_degree') {
-      sectionsHtml += `<div class="space-y-2">`;
-      for (const item of (sec.items || [])) {
-        sectionsHtml += `
-          <div class="cv-item">
-            <div class="cv-item-header">
-              <div>
-                <span class="cv-item-title">${escapeHtml(item.degree || '')}</span>
-                ${item.institution ? ` — <span class="cv-item-org">${escapeHtml(item.institution)}</span>` : ''}
-              </div>
-              <span class="cv-item-meta">${escapeHtml(item.dates || '')}</span>
-            </div>
-            ${item.grade ? `<div class="text-[11.5px] font-mono text-neutral-600 mt-0.5">${escapeHtml(item.grade)}</div>` : ''}
-            ${item.details ? `<div class="text-[11.5px] text-neutral-700 mt-0.5">${escapeHtml(item.details)}</div>` : ''}
-          </div>
-        `;
-      }
-      sectionsHtml += `</div>`;
-    } else if (sec.type === 'experience') {
-      sectionsHtml += `<div class="space-y-3">`;
-      for (const item of (sec.items || [])) {
-        sectionsHtml += `
-          <div class="cv-item">
-            <div class="cv-item-header">
-              <div>
-                <span class="cv-item-title">${escapeHtml(item.role || '')}</span>
-                ${item.company ? `, <span class="cv-item-org">${escapeHtml(item.company)}</span>` : ''}
-              </div>
-              <span class="cv-item-meta">${escapeHtml(item.dates || '')}</span>
-            </div>
-            ${item.bullets && item.bullets.length ? `
-              <ul class="cv-bullets">
-                ${item.bullets.filter(b => b.trim()).map(b => `<li class="cv-bullet">${escapeHtml(b)}</li>`).join('')}
-              </ul>
-            ` : ''}
-          </div>
-        `;
-      }
-      sectionsHtml += `</div>`;
-    } else if (sec.type === 'projects') {
-      sectionsHtml += `<div class="space-y-2.5">`;
-      for (const item of (sec.items || [])) {
-        sectionsHtml += `
-          <div class="cv-item">
-            <div class="cv-item-header">
-              <div>
-                <span class="cv-item-title">${escapeHtml(item.title || '')}</span>
-                ${item.tools ? `<span class="text-[11px] font-mono text-neutral-500 ml-1.5">[${escapeHtml(item.tools)}]</span>` : ''}
-              </div>
-              <span class="cv-item-meta">${escapeHtml(item.dates || '')}</span>
-            </div>
-            ${item.bullets && item.bullets.length ? `
-              <ul class="cv-bullets">
-                ${item.bullets.filter(b => b.trim()).map(b => `<li class="cv-bullet">${escapeHtml(b)}</li>`).join('')}
-              </ul>
-            ` : ''}
-          </div>
-        `;
-      }
-      sectionsHtml += `</div>`;
-    } else if (sec.type === 'publications') {
-      sectionsHtml += `<ol class="list-decimal pl-5 space-y-1.5 text-[11.5px]">`;
-      for (const item of (sec.items || [])) {
-        sectionsHtml += `
-          <li class="leading-relaxed">
-            ${escapeHtml(item.authors || '')} (${escapeHtml(item.year || '')}).
-            <strong>${escapeHtml(item.title || '')}</strong>.
-            <em>${escapeHtml(item.venue || '')}</em>.
-            ${item.doi ? `<a href="${escapeHtml(item.doi)}" target="_blank" class="underline font-mono text-[11px] ml-1">${escapeHtml(item.doi)}</a>` : ''}
-          </li>
-        `;
-      }
-      sectionsHtml += `</ol>`;
-    } else if (sec.type === 'skills') {
-      sectionsHtml += `<div class="cv-skills-grid">`;
-      for (const cat of (sec.categories || [])) {
-        const cItems = Array.isArray(cat.items) ? cat.items.join(', ') : (cat.items || '');
-        sectionsHtml += `
-          <div class="cv-skill-row">
-            <span class="cv-skill-label">${escapeHtml(cat.category || '')}:</span>
-            <span class="cv-skill-values">${escapeHtml(cItems)}</span>
-          </div>
-        `;
-      }
-      sectionsHtml += `</div>`;
-    } else if (sec.type === 'awards') {
-      sectionsHtml += `<div class="space-y-1.5">`;
-      for (const item of (sec.items || [])) {
-        sectionsHtml += `
-          <div class="cv-item">
-            <div class="cv-item-header">
-              <span class="cv-item-title">${escapeHtml(item.title || '')}</span>
-              <span class="cv-item-meta">${escapeHtml(item.dates || '')}</span>
-            </div>
-            <div class="text-[11.5px] text-neutral-600">${escapeHtml(item.organization || '')} ${item.note ? `— ${escapeHtml(item.note)}` : ''}</div>
-          </div>
-        `;
-      }
-      sectionsHtml += `</div>`;
-    } else if (sec.type === 'volunteer') {
-      sectionsHtml += `<div class="space-y-2">`;
-      for (const item of (sec.items || [])) {
-        sectionsHtml += `
-          <div class="cv-item">
-            <div class="cv-item-header">
-              <span class="cv-item-title">${escapeHtml(item.role || '')}</span>
-              <span class="cv-item-meta">${escapeHtml(item.dates || '')}</span>
-            </div>
-            <div class="text-[11.5px] text-neutral-600">${escapeHtml(item.organization || '')}</div>
-            ${item.bullets && item.bullets.length ? `
-              <ul class="cv-bullets">
-                ${item.bullets.filter(b => b.trim()).map(b => `<li class="cv-bullet">${escapeHtml(b)}</li>`).join('')}
-              </ul>
-            ` : ''}
-          </div>
-        `;
-      }
-      sectionsHtml += `</div>`;
-    } else {
-      sectionsHtml += `<p class="text-[12px] text-neutral-800 leading-relaxed whitespace-pre-line">${escapeHtml(sec.text || '')}</p>`;
-    }
-
-    sectionsHtml += `</section>`;
-  }
-
-  sectionsHtml += '</div></div>';
-  DOM.liveResumeContainer.innerHTML = headerHtml + sectionsHtml;
 }
 
 // Render Sections Manager
