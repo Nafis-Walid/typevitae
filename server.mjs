@@ -203,6 +203,7 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(200, {
         'Content-Type': 'application/pdf',
         'Content-Disposition': 'inline; filename="TypeVitae_CV.pdf"',
+        'Access-Control-Allow-Origin': '*',
       });
       if (req.method === 'HEAD') return res.end();
       return fs.createReadStream(pdfPath).pipe(res);
