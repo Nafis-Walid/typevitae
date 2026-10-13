@@ -491,3 +491,167 @@ body {
     height: auto !important;
   }
 }
+
+/* =========================================================================
+   Live Web Resume Typography & Print Media Rules
+   ========================================================================= */
+
+.cv-page {
+  font-family: var(--font-sans);
+  color: #121212;
+  line-height: 1.45;
+}
+
+.cv-header-name {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #000000;
+  line-height: 1.1;
+}
+
+.cv-contact-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  font-size: 11.5px;
+  color: #4b5563;
+  margin-top: 6px;
+}
+
+.cv-contact-bar a {
+  color: #111827;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.cv-section-title {
+  font-size: 12.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #000000;
+  border-bottom: 1.5px solid #000000;
+  padding-bottom: 2px;
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+
+.cv-item {
+  margin-bottom: 10px;
+}
+
+.cv-item:last-child {
+  margin-bottom: 0;
+}
+
+.cv-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.cv-item-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #050505;
+}
+
+.cv-item-org {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.cv-item-meta {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.cv-bullets {
+  list-style-type: disc;
+  margin-left: 18px;
+  margin-top: 4px;
+  space-y: 2px;
+}
+
+.cv-bullet {
+  font-size: 11.5px;
+  color: #1f2937;
+  line-height: 1.45;
+  margin-bottom: 3px;
+}
+
+.cv-skills-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11.5px;
+}
+
+.cv-skill-row {
+  display: flex;
+  gap: 6px;
+  line-height: 1.4;
+}
+
+.cv-skill-label {
+  font-weight: 700;
+  color: #111827;
+  white-space: nowrap;
+  min-width: 140px;
+}
+
+.cv-skill-values {
+  color: #374151;
+}
+
+/* Print Media Optimization */
+@media print {
+  header,
+  #leftEditorPanel,
+  #rightPreviewToolbar,
+  #toastContainer,
+  .modal-backdrop,
+  #pdfViewerWrapper,
+  #texSourceWrapper,
+  #compilingOverlay,
+  #errorDrawer {
+    display: none !important;
+  }
+
+  body,
+  #splitLayout,
+  #rightPreviewPanel,
+  #pdfScrollContainer,
+  #liveResumeWrapper {
+    display: block !important;
+    position: static !important;
+    overflow: visible !important;
+    height: auto !important;
+    width: 100% !important;
+    background: #ffffff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  #liveResumeContainer {
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  @page {
+    size: A4;
+    margin: 12mm 15mm;
+  }
+}
