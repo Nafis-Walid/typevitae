@@ -77,7 +77,9 @@ TypeVitae/
 
 ## 5. Deployment & System Architecture
 
-- **Local Studio URL:** `http://127.0.0.1:4200` (Daemon running on port 4200)
+- **24/7 Cloud Studio URL (Mac Off):** [https://typevitae.onrender.com](https://typevitae.onrender.com) (100% Free Docker Container with TeX Live)
+- **Local Studio URL (Mac On):** `http://127.0.0.1:4200` (Daemon running on port 4200)
+- **Static Frontend CDN:** [https://typevitae.pages.dev](https://typevitae.pages.dev) (Cloudflare Pages)
 - **GitHub Repository:** [https://github.com/Nafis-Walid/typevitae](https://github.com/Nafis-Walid/typevitae) (`Nafis-Walid`)
 
 ### Core Architecture:
