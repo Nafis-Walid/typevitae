@@ -1,0 +1,7 @@
+.git
+node_modules
+build_cache/*
+!build_cache/.gitkeep
+tests
+server.log
+.DS_Store
