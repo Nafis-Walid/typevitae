@@ -72,3 +72,24 @@ TypeVitae/
 - [x] **Zero Data Loss:** Schema validation guarantees no profile corruption or character truncation.
 - [x] **Zero Syntax Crashes:** Hardened sanitizer prevents unescaped `&`, `%`, `_`, `#`, `{`, `}` from breaking builds.
 - [x] **100% Automated Test Pass Rate:** Unit and integration test suite passing (62/62 tests passing, 0 failures).
+
+---
+
+## 5. Live Production Deployment & Dual-Mode Architecture
+
+- **Canonical 24/7 Cloud URL:** [https://typevitae.pages.dev](https://typevitae.pages.dev) (Hosted on Cloudflare Pages Global CDN, 100% Free Forever)
+- **GitHub Repository:** [https://github.com/Nafis-Walid/typevitae](https://github.com/Nafis-Walid/typevitae) (`Nafis-Walid`)
+- **Local Engine URL:** `http://127.0.0.1:4200`
+
+### Dual-Mode Execution Matrix:
+1. **Cloud Mode (Standalone 24/7 without Mac mini):**
+   - Pure client-side Google Stitch UI with zero server latency.
+   - Interactive Live Web Resume view with instant debounced updates as you type.
+   - 1-click **Print / Save Vector PDF (⌘P)** with customized print media CSS.
+   - 1-click **Overleaf ↗ Bridge** (opens a freshly compiled Overleaf project via official snip API).
+   - 1-click **Download LaTeX (.tex)** source file.
+   - LocalStorage profile caching and client photo Data URL persistence.
+2. **Local Engine Mode (when running `node server.mjs` on Mac):**
+   - Full sub-350ms native `pdflatex` compilation pipeline.
+   - Live PDF preview iframe with deterministic disk caching.
+   - Direct macOS Preview.app bridge button.
