@@ -17,10 +17,12 @@ import { PRESETS } from '../latex_engine/generator.mjs';
 
 const SCHEMA_PATH = path.resolve('data/schema.json');
 const DEFAULT_PROFILE_PATH = path.resolve('data/profiles/default_nafis.json');
+const STARTER_PROFILE_PATH = path.resolve('data/profiles/starter_template.json');
 const ACTIVE_PROFILE_PATH = path.resolve('data/profiles/active.json');
 
 const schema = JSON.parse(fs.readFileSync(SCHEMA_PATH, 'utf-8'));
 const defaultProfile = JSON.parse(fs.readFileSync(DEFAULT_PROFILE_PATH, 'utf-8'));
+const starterProfile = JSON.parse(fs.readFileSync(STARTER_PROFILE_PATH, 'utf-8'));
 
 /**
  * Lightweight, zero-dependency schema validator conforming to schema.json
@@ -148,6 +150,30 @@ describe('Profile Schema - Master Profile (default_nafis.json)', () => {
       const result = validateProfileAgainstSchema(activeProfile);
       assert.equal(result.valid, true, `active.json invalid: ${result.errors.join('; ')}`);
     }
+  });
+});
+
+describe('Profile Schema - Starter Template (starter_template.json)', () => {
+  it('validates starter template 100% cleanly against data/schema.json with zero errors', () => {
+    const result = validateProfileAgainstSchema(starterProfile);
+    assert.equal(result.valid, true, `Validation errors: ${result.errors.join('; ')}`);
+    assert.equal(result.errors.length, 0);
+  });
+
+  it('contains generic placeholder header fields (Alex Morgan)', () => {
+    const { header } = starterProfile;
+    assert.equal(header.name, 'Alex Morgan');
+    assert.equal(header.email, 'alex.morgan@example.com');
+    assert.ok(header.phone && header.phone.length > 0);
+    assert.equal(typeof header.includePhoto, 'boolean');
+  });
+
+  it('contains all required section types matching presets', () => {
+    const presentTypes = new Set(starterProfile.sections.map(s => s.type));
+    assert.ok(presentTypes.has('profiles'));
+    assert.ok(presentTypes.has('items_degree'));
+    assert.ok(presentTypes.has('experience'));
+    assert.ok(presentTypes.has('skills'));
   });
 });
 

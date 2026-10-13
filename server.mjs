@@ -179,7 +179,16 @@ const server = http.createServer(async (req, res) => {
 
   // 4. API: Profiles list
   if (pathname === '/api/profiles' && req.method === 'GET') {
-    const files = fs.readdirSync(PROFILES_DIR).filter(f => f.endsWith('.json') && f !== 'active.json');
+    const isLocalOrPrivate = urlObj.searchParams.get('include_private') === 'true' ||
+                             req.headers.host?.includes('localhost') ||
+                             req.headers.host?.includes('127.0.0.1');
+    const files = fs.readdirSync(PROFILES_DIR).filter(f => {
+      if (!f.endsWith('.json') || f === 'active.json') return false;
+      // Protect personal profile from public exposure
+      if (!isLocalOrPrivate && f === 'default_nafis.json') return false;
+      return true;
+    });
+
     const profiles = files.map(f => {
       const id = f.replace('.json', '');
       try {
@@ -189,14 +198,17 @@ const server = http.createServer(async (req, res) => {
         return { id, name: id, title: '' };
       }
     });
-    return sendJson(res, 200, { profiles, activeId: 'default_nafis' });
+
+    // Ensure starter_template is prioritized first
+    profiles.sort((a, b) => (a.id === 'starter_template' ? -1 : b.id === 'starter_template' ? 1 : 0));
+    return sendJson(res, 200, { profiles, activeId: 'starter_template' });
   }
 
   // 5. API: Get Profile
   if (pathname === '/api/profile' && req.method === 'GET') {
-    const profileId = urlObj.searchParams.get('id') || 'active';
+    const profileId = urlObj.searchParams.get('id') || 'starter_template';
     const filePath = path.join(PROFILES_DIR, `${profileId}.json`);
-    const fallbackPath = path.join(PROFILES_DIR, 'active.json');
+    const fallbackPath = path.join(PROFILES_DIR, 'starter_template.json');
     const target = fs.existsSync(filePath) ? filePath : fallbackPath;
 
     if (fs.existsSync(target)) {
@@ -213,10 +225,8 @@ const server = http.createServer(async (req, res) => {
       const data = await parseJsonBody(req);
       const profileId = urlObj.searchParams.get('id') || 'active';
       const targetPath = path.join(PROFILES_DIR, `${profileId}.json`);
-      const activePath = path.join(PROFILES_DIR, 'active.json');
 
       fs.writeFileSync(targetPath, JSON.stringify(data, null, 2), 'utf-8');
-      fs.writeFileSync(activePath, JSON.stringify(data, null, 2), 'utf-8');
 
       return sendJson(res, 200, { success: true });
     } catch (err) {
@@ -224,7 +234,7 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
-  // 7. API: Compile to PDF
+  // 7. API: Compile to PDF (Stateless in-memory compilation)
   if (pathname === '/api/compile' && req.method === 'POST') {
     try {
       let bodyData = await parseJsonBody(req);
@@ -238,16 +248,20 @@ const server = http.createServer(async (req, res) => {
         : '';
       const buildId = sanitizedClientBuildId || ('build_' + Date.now() + '_' + crypto.randomBytes(4).toString('hex'));
 
-      const activePath = path.join(PROFILES_DIR, 'active.json');
-      if (bodyData && Object.keys(bodyData).length > 0) {
-        fs.writeFileSync(activePath, JSON.stringify(bodyData, null, 2), 'utf-8');
-      } else if (fs.existsSync(activePath)) {
-        bodyData = JSON.parse(fs.readFileSync(activePath, 'utf-8'));
+      // Use payload directly without overwriting shared server state
+      let profileData = bodyData;
+      if (!profileData || Object.keys(profileData).length === 0) {
+        const starterPath = path.join(PROFILES_DIR, 'starter_template.json');
+        const activePath = path.join(PROFILES_DIR, 'active.json');
+        const fallback = fs.existsSync(starterPath) ? starterPath : activePath;
+        if (fs.existsSync(fallback)) {
+          profileData = JSON.parse(fs.readFileSync(fallback, 'utf-8'));
+        }
       }
 
       // Dynamic import of compiler
       const compilerModule = await import(`./latex_engine/compiler.mjs?t=${Date.now()}`);
-      const result = await compilerModule.compileProfile(bodyData, {
+      const result = await compilerModule.compileProfile(profileData, {
         outputDir: CACHE_DIR,
         jobName: buildId,
         templatesDir: path.join(__dirname, 'latex_engine/templates'),

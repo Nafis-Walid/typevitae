@@ -109,24 +109,24 @@
         \end{tabular}
 }
 
-\newcommand{\publicationItem}[5]{
+\newcommand{\publicationItem}[5]{%
   \item
   #1. %Authors
-  "#2."%Title
+  ``#2.'' %Title
   \textit{#3}%Venue
   \ifstrempty{#4}{}{, #4}%Year of Publication
-  \ifstrempty{#5}{}{.\\ #5}%links, DOI, notes etc
+  \ifstrempty{#5}{}{. \newline #5}%links, DOI, notes etc
 }
 
-\newcommand{\publication}[2]{
+\newcommand{\publication}[2]{%
 \noindent
-  \begin{tabular}[t]{p{\textwidth}}
+  \begin{minipage}[t]{\textwidth}
   \textbf{#1}
   \vspace{-0.7em}
   \begin{enumerate}[leftmargin=2em, itemsep=-0.2em]
     #2
   \end{enumerate}
-  \end{tabular}
+  \end{minipage}
 }
 
 \newcommand{\profExp}[4]{%

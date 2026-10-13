@@ -73,21 +73,37 @@ describe('HTTP API - Presets & Profile Discovery', () => {
     assert.ok(Array.isArray(presets.master.enabledSections));
   });
 
-  it('GET /api/profiles returns list of profiles with default_nafis', async () => {
+  it('GET /api/profiles returns list of profiles with starter_template as default activeId', async () => {
     const res = await fetch(`${baseUrl}/api/profiles`);
     assert.equal(res.status, 200);
     assert.ok(res.headers.get('content-type').includes('application/json'));
 
     const data = await res.json();
     assert.ok(Array.isArray(data.profiles));
-    assert.equal(data.activeId, 'default_nafis');
+    assert.equal(data.activeId, 'starter_template');
+
+    const starterProf = data.profiles.find(p => p.id === 'starter_template');
+    assert.ok(starterProf, 'starter_template profile must be present in profile list');
+    assert.equal(starterProf.name, 'Alex Morgan');
 
     const defaultProf = data.profiles.find(p => p.id === 'default_nafis');
-    assert.ok(defaultProf, 'default_nafis profile must be present in profile list');
+    assert.ok(defaultProf, 'default_nafis profile must be present on local test host');
     assert.equal(defaultProf.name, 'Md Nafis Walid');
   });
 
-  it('GET /api/profile?id=default_nafis returns full profile schema object', async () => {
+  it('GET /api/profile?id=starter_template returns full starter profile schema object', async () => {
+    const res = await fetch(`${baseUrl}/api/profile?id=starter_template`);
+    assert.equal(res.status, 200);
+    assert.ok(res.headers.get('content-type').includes('application/json'));
+
+    const profile = await res.json();
+    assert.ok(profile.header);
+    assert.equal(profile.header.name, 'Alex Morgan');
+    assert.ok(Array.isArray(profile.sections));
+    assert.ok(profile.sections.length > 5);
+  });
+
+  it('GET /api/profile?id=default_nafis returns full personal profile schema object', async () => {
     const res = await fetch(`${baseUrl}/api/profile?id=default_nafis`);
     assert.equal(res.status, 200);
     assert.ok(res.headers.get('content-type').includes('application/json'));

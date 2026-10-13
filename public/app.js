@@ -5,7 +5,7 @@
 
 // Application State
 const State = {
-  currentProfileId: 'default_nafis',
+  currentProfileId: 'starter_template',
   currentProfile: null,
   availableProfiles: [],
   presets: {},
@@ -168,6 +168,20 @@ function showToast(message, type = 'info', duration = 3000) {
   }, duration);
 }
 
+// Debounced Local Autosave
+let autosaveTimeout = null;
+function scheduleAutosave() {
+  if (autosaveTimeout) clearTimeout(autosaveTimeout);
+  autosaveTimeout = setTimeout(() => {
+    if (State.currentProfile) {
+      try {
+        localStorage.setItem(`typevitae_profile_${State.currentProfileId}`, JSON.stringify(State.currentProfile));
+        localStorage.setItem('typevitae_active_profile', JSON.stringify(State.currentProfile));
+      } catch (e) {}
+    }
+  }, 750);
+}
+
 // Initialize Application
 async function init() {
   setupEventListeners();
@@ -175,7 +189,24 @@ async function init() {
   await checkBackendConnection();
   await loadPresets();
   await loadProfilesList();
-  await loadProfile('default_nafis');
+
+  // Multi-tenant Local-First: Check if user has an active workspace in their own browser
+  const localActive = localStorage.getItem('typevitae_active_profile');
+  if (localActive) {
+    try {
+      const data = JSON.parse(localActive);
+      if (data && data.header) {
+        State.currentProfileId = 'active';
+        State.currentProfile = data;
+        State.activePreset = data.activePreset || 'master';
+        renderAll();
+        showToast('Restored your private workspace from browser storage');
+        return;
+      }
+    } catch (e) {}
+  }
+
+  await loadProfile('starter_template');
 }
 
 // Verify whether LaTeX compilation backend is active
@@ -290,6 +321,7 @@ function setupEventListeners() {
     el.addEventListener('input', (e) => {
       if (State.currentProfile && State.currentProfile.header) {
         State.currentProfile.header[prop] = e.target.value;
+        scheduleAutosave();
       }
     });
   });
@@ -298,6 +330,7 @@ function setupEventListeners() {
   DOM.hdrIncludePhoto.addEventListener('change', (e) => {
     if (State.currentProfile && State.currentProfile.header) {
       State.currentProfile.header.includePhoto = e.target.checked;
+      scheduleAutosave();
     }
   });
 
@@ -370,7 +403,7 @@ async function loadProfilesList() {
   } catch (err) {
     const localProfiles = JSON.parse(localStorage.getItem('typevitae_custom_profiles') || '[]');
     State.availableProfiles = [
-      { id: 'default_nafis', name: 'Master Profile (Md Nafis Walid)' },
+      { id: 'starter_template', name: 'Starter Template (Alex Morgan)' },
       ...localProfiles
     ];
     renderProfileSelectOptions();
@@ -391,7 +424,7 @@ function renderProfileSelectOptions() {
   // Active workspace option
   const activeOpt = document.createElement('option');
   activeOpt.value = 'active';
-  activeOpt.textContent = 'Active Workspace (Uncommitted)';
+  activeOpt.textContent = 'My Workspace (Local)';
   if (State.currentProfileId === 'active') activeOpt.selected = true;
   DOM.profileSelect.appendChild(activeOpt);
 
@@ -462,6 +495,7 @@ async function saveProfile() {
   // Persist locally first
   try {
     localStorage.setItem(`typevitae_profile_${State.currentProfileId}`, JSON.stringify(State.currentProfile));
+    localStorage.setItem('typevitae_active_profile', JSON.stringify(State.currentProfile));
   } catch (e) {}
 
   try {
@@ -668,6 +702,9 @@ async function handleJsonFileSelect(e) {
       // Persist in localStorage
       try {
         localStorage.setItem(`typevitae_profile_${State.currentProfileId}`, JSON.stringify(parsed));
+        localStorage.setItem('typevitae_active_profile', JSON.stringify(parsed));
+        State.currentProfileId = 'active';
+        if (DOM.profileSelect) DOM.profileSelect.value = 'active';
       } catch (storageErr) {}
 
       // Persist to server if backend connected
@@ -1587,9 +1624,11 @@ function handleSectionDelegatedChange(e) {
   if (action === 'toggle-section') {
     sections[secIdx].enabled = target.checked;
     renderSections();
+    scheduleAutosave();
   } else if (action === 'toggle-profile-item') {
     sections[secIdx].profiles[itemIdx].enabled = target.checked;
     renderSections();
+    scheduleAutosave();
   }
 }
 
@@ -1666,6 +1705,7 @@ function handleSectionDelegatedInput(e) {
       sections[secIdx].items[itemIdx].bullets[bIdx] = val;
       break;
   }
+  scheduleAutosave();
 }
 
 // Custom Section Creation Modal

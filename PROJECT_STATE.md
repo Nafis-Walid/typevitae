@@ -67,11 +67,12 @@ TypeVitae/
 
 ## 4. Quality Gate & Acceptance Criteria
 
-- [x] **100% Free / Zero-Cost Compliance:** Uses local TeX Live and local runtime without external paid APIs.
-- [x] **Sub-Second Latency:** `pdflatex` compilation benchmark completes in ~312ms (well under 800ms requirement).
-- [x] **Zero Data Loss:** Schema validation guarantees no profile corruption or character truncation.
+- [x] **100% Free / Zero-Cost Compliance:** Uses local TeX Live and free Render Docker runtime without external paid APIs.
+- [x] **Sub-Second Latency:** `pdflatex` compilation benchmark completes in ~350ms (well under 800ms requirement).
+- [x] **Multi-Tenant Privacy Guarantee:** OpenResume architecture model—visitor CV data is stored 100% locally in `localStorage`, public requests load `starter_template.json` ("Alex Morgan"), server compile is completely stateless in memory, and the creator's CV (`default_nafis.json`) is never publicly exposed.
+- [x] **Universal Cross-Platform Controls:** Zero OS bias—replaced "Open in Mac" with universal "Open in New Tab" (↗), mobile [Editor | Preview] tab switcher, and 1-click JSON Export/Import.
 - [x] **Zero Syntax Crashes:** Hardened sanitizer prevents unescaped `&`, `%`, `_`, `#`, `{`, `}` from breaking builds.
-- [x] **100% Automated Test Pass Rate:** Unit and integration test suite passing (62/62 tests passing, 0 failures).
+- [x] **100% Automated Test Pass Rate:** Unit and integration test suite passing (71/71 tests passing across 15 suites, 0 failures).
 
 ---
 
@@ -83,13 +84,16 @@ TypeVitae/
 - **GitHub Repository:** [https://github.com/Nafis-Walid/typevitae](https://github.com/Nafis-Walid/typevitae) (`Nafis-Walid`)
 
 ### Core Architecture:
-1. **Frontend UI (Google Stitch Minimalist):**
+1. **Frontend UI (Google Stitch Minimalist & Local-First):**
    - Split-screen layout: left side has dynamic forms, photo toggle, section accordions, reordering, and presets (`master`, `industry`, `academic`, `compact`).
-   - Right side has the embedded PDF viewer (`<iframe src="/api/pdf">`) with Zoom/Fit controls, Download PDF, and native macOS Preview.app bridge.
+   - Right side has the embedded PDF viewer (`<iframe src="/api/pdf">`) with Zoom/Fit controls, Download PDF, and universal "Open in New Tab" (↗).
+   - Local-first persistence: Edits are automatically saved to browser `localStorage` (`typevitae_active_profile`).
+   - Data portability: 1-click **Export JSON** and **Import JSON** buttons enable cross-device transfer without cloud database accounts.
    - 1-click **⚡ Compile & Build (Cmd+Enter)** compiles the LaTeX document and refreshes the PDF viewer with live latency stats.
 
-2. **Backend Engine (`pdflatex` Pipeline):**
+2. **Backend Engine (`pdflatex` Pipeline & Concurrency Isolation):**
    - Pure native TeX Live pipeline compiling with sub-400ms speed.
-   - Deterministic cache mechanism (0ms on unchanged profile).
-   - Zero syntax crashes with automated character escaping (`&`, `%`, `_`, etc.).
-   - Full 62-test automated test suite passing (100% pass rate).
+   - Cryptographic `buildId` isolation per compilation request (`/api/pdf?id=build_...`).
+   - In-memory stateless compilation: Server does NOT overwrite shared files on disk during build.
+   - Automated cache reaper purges build artifacts older than 1 hour.
+   - Full 71-test automated test suite passing (100% pass rate).

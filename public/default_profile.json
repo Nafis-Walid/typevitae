@@ -1,16 +1,17 @@
 {
   "header": {
-    "name": "Md Nafis Walid",
+    "name": "Alex Morgan",
     "includePhoto": false,
     "photoPath": "photo.png",
-    "email": "nafis.ruet@gmail.com",
-    "phone": "+88 01934-960321",
-    "address": "DIT Project, Badda, Dhaka 1212",
-    "linkedin": "https://www.linkedin.com/in/nafis-walid/",
+    "email": "alex.morgan@example.com",
+    "phone": "+1 (555) 234-5678",
+    "address": "San Francisco, CA 94107",
+    "linkedin": "https://linkedin.com/in/alex-morgan",
     "linkedinLabel": "LinkedIn",
-    "github": "https://github.com/Nafis-Walid",
+    "github": "https://github.com/alexmorgan",
     "githubLabel": "GitHub"
   },
+  "activePreset": "master",
   "sections": [
     {
       "id": "career_objective",
@@ -21,22 +22,22 @@
         {
           "name": "Embedded Software Engineering (Industry)",
           "enabled": true,
-          "text": "Embedded Software Engineer with hands-on experience in C-based firmware development for embedded networking devices. Strong foundation in embedded programming, networking protocols, system debugging, and problem-solving. Seeking to design, develop, and maintain reliable C/C++ embedded systems while continuously advancing my expertise in embedded software and computer architecture."
+          "text": "Systems and Embedded Software Engineer with expertise in low-level systems programming, firmware development, and networking protocols. Seeking to design and optimize mission-critical, high-reliability embedded platforms while advancing modern computer architecture paradigms."
         },
         {
           "name": "Academic & Higher Education (Lecturer in CSE)",
           "enabled": true,
-          "text": "Passionate about teaching and committed to continuous learning, I seek a Lecturer position in Computer Science & Engineering at DIU. With experience mentoring university students locally and internationally, I strive to make complex topics accessible from multiple perspectives. My research interests in computer architecture, operating systems, and AI/ML motivate me to foster a research-driven environment and mentor students in innovative projects. I aim to contribute to DIU's academic excellence through engaging instruction, collaborative research, and student-centered mentorship."
+          "text": "Passionate educator and researcher dedicated to student mentorship and research-driven instruction. Seeking a faculty position to advance computing curricula, conduct systems research, and empower undergraduate engineering talent."
         },
         {
           "name": "Hardware Systems & Processor Architecture (VLSI)",
           "enabled": true,
-          "text": "I have a strong interest in hardware-oriented system design and low-level computing, and I enjoy understanding how software concepts map onto real hardware. I have previously designed and implemented a working 4-bit CPU, including its control unit, memory module, and instruction set, which motivated me to explore deeper aspects of processor design beyond logic-level implementation. Through this course on Digital VLSI Physical Design, I aim to gain practical knowledge of physical design concepts and industry workflows that will help me progress toward my long-term goal of building complete CPU systems, including their ISA and supporting toolchains, with a solid foundation in real silicon implementation."
+          "text": "Hardware-software co-design enthusiast with hands-on experience in CPU architecture, instruction set simulation, and digital VLSI synthesis. Seeking to explore scalable silicon microarchitectures and specialized accelerator engines."
         },
         {
           "name": "Human-Computer Interaction (HCI & Social Impact)",
           "enabled": true,
-          "text": "I am interested in exploring why many people in Bangladesh are still unable to fully benefit from modern technology, even though technological growth has been very rapid lately. Through Human-Computer Interaction research, I want to observe these gaps from the perspective of users and society and explore solutions that people can actually use and benefit from. By engaging with HCCS, I hope to learn research methods, shape my ideas, and actively contribute to projects that address digital inequality."
+          "text": "Human-centered computing advocate focused on bridging digital literacy divides through accessible user interfaces, contextual computing, and equitable technology access."
         }
       ]
     },
@@ -48,21 +49,15 @@
       "items": [
         {
           "degree": "Bachelor of Science in Computer Science & Engineering",
-          "dates": "February, 2019 -- May, 2024",
-          "institution": "Rajshahi University of Engineering & Technology (RUET) | Kazla, Rajshahi",
-          "grade": "CGPA: 3.32/4.00"
+          "dates": "September 2019 -- June 2023",
+          "institution": "University of California, Berkeley | Berkeley, CA",
+          "grade": "GPA: 3.85 / 4.00 (Distinction)"
         },
         {
-          "degree": "Higher Secondary Certificate (HSC) from Science Group",
-          "dates": "July, 2016 -- September, 2018",
-          "institution": "Milestone College | Uttara, Dhaka-1230",
-          "grade": "GPA: 5.00/5.00"
-        },
-        {
-          "degree": "Secondary School Certificate (SSC) from Science Group",
-          "dates": "January, 2014 -- May, 2016",
-          "institution": "Milestone College | Uttara, Dhaka-1230",
-          "grade": "GPA: 5.00/5.00"
+          "degree": "High School Diploma (Honors)",
+          "dates": "August 2015 -- May 2019",
+          "institution": "Lincoln High School | San Francisco, CA",
+          "grade": "GPA: 4.00 / 4.00"
         }
       ]
     },
@@ -71,20 +66,25 @@
       "title": "Research Interests",
       "enabled": true,
       "type": "text",
-      "text": "VLSI-based design for efficient computing architectures, Machine Learning and Deep Learning for hardware-accelerated applications, Large Language Models (LLMs), Natural Language Processing (NLP), Computer Vision, Generative Models, Handwritten Optical Character Recognition (HOCR), Human-Computer Interaction (HCI), and Satellite Image Analysis."
+      "text": "Computer Architecture, Embedded Operating Systems, Real-Time Distributed Systems, Hardware-Software Co-Design, Low-Power Microcontroller Optimization, and Compiler Engineering."
     },
     {
       "id": "publications",
-      "title": "Research & Publications",
+      "title": "Selected Publications",
       "enabled": true,
       "type": "publications",
       "items": [
         {
-          "authors": "Shajnin Haque Aishy, Md Nafis Walid, Sadullah Karimi and Mohiuddin Ahmed",
-          "highlightAuthor": "Md Nafis Walid",
-          "title": "A Deep Learning Approach for Balancing Accuracy and Efficiency in Handwritten Mathematical Symbol Recognition",
-          "venue": "28th International Conference on Computer and Information Technology (ICCIT)",
-          "year": "2025"
+          "authors": "Alex Morgan, Elena Rostova, Marcus Vance",
+          "title": "Efficient Cache Coherence Schemes for Embedded Heterogeneous Multi-Cores",
+          "venue": "IEEE International Symposium on Computer Architecture (ISCA)",
+          "year": "2023"
+        },
+        {
+          "authors": "Alex Morgan, David K. Chen",
+          "title": "Zero-Copy IPC Mechanisms for Deterministic Real-Time Microkernels",
+          "venue": "ACM SIGBED International Conference on Embedded Software (EMSOFT)",
+          "year": "2022"
         }
       ]
     },
@@ -95,170 +95,98 @@
       "type": "experience",
       "items": [
         {
-          "role": "Research & Development Engineer",
-          "company": "Shanghai BDCOM Information Technology Co., Ltd. (Bangladesh Office)",
-          "dates": "May, 2024 -- Present",
+          "role": "Senior Systems Engineer",
+          "company": "Apex Technologies | San Francisco, CA",
+          "dates": "July 2023 -- Present",
           "bullets": [
-            "Developed and maintained C-based firmware for GPON/EPON ONU and Ethernet switch products on Linux- and VxWorks-based embedded platforms.",
-            "Designed and implemented a TFTP-based firmware upgrade solution for embedded Ethernet switch devices.",
-            "Implemented, customized, and validated networking features including DHCPv4, DHCPv6, PPPoE, IGMP, MLD, OMCI, TR-069, VLAN, and Ethernet switching.",
-            "Customized firmware for international ISP customers and ensured interoperability with Huawei and ZTE OLTs.",
-            "Implemented and validated multicast features including IGMP/MLD snooping, multicast VLAN, fast leave, static multicast groups, and multicast access control.",
-            "Investigated protocol-level issues using Wireshark, protocol analysis, and embedded CLI debugging to resolve customer-reported firmware defects.",
-            "Designed and executed functional, interoperability, and regression test cases for embedded networking features.",
-            "Conducted experimental systems projects in C (Student Information Management, Network Packet Management, BitMap Management) focusing on pointer manipulation, low-level data structures, and memory efficiency.",
-            "Used SVN for source code management, version control, and collaborative firmware development.",
-            "Collaborated with international customers and cross-functional teams to investigate firmware issues, provide technical support, and deliver customer-specific solutions."
+            "Architected low-latency C/C++ firmware pipelines for high-throughput edge inference devices, reducing P99 latency by 34%.",
+            "Implemented DMA ring buffer memory drivers in Linux kernel space, achieving zero dropped packets under 10 Gbps peak load.",
+            "Mentored 4 junior engineers on deterministic state machine design and concurrency validation."
+          ]
+        },
+        {
+          "role": "Embedded Firmware Engineering Intern",
+          "company": "Silicon Edge Labs | San Jose, CA",
+          "dates": "May 2022 -- August 2022",
+          "bullets": [
+            "Developed FreeRTOS device drivers for SPI, I2C, and UART peripherals on ARM Cortex-M4 microcontrollers.",
+            "Reduced idle standby power draw by 42% through aggressive peripheral power-gating and clock scaling."
           ]
         }
       ]
     },
     {
       "id": "projects",
-      "title": "Projects",
+      "title": "Key Engineering Projects",
       "enabled": true,
       "type": "projects",
       "items": [
         {
-          "name": "4-bit CPU Design",
-          "url": "https://github.com/Nafis-Walid/CPU-Design",
+          "name": "RISC-V 32-Bit Pipelined Microprocessor",
+          "role": "Lead Architect",
+          "dates": "Jan 2023 -- May 2023",
           "bullets": [
-            "Designed and implemented a fully functional 4-bit CPU at the register-transfer level, including an ALU, register file, RAM, program counter, status flags, and an FSM-based control unit.",
-            "Designed a custom instruction set architecture (ISA) and assembly language, implementing the complete instruction fetch--decode--execute cycle.",
-            "Demonstrated strong understanding of computer architecture, digital logic design, datapath/control design, and hardware-software interaction."
+            "Designed and synthesized a 5-stage pipelined RV32I core in SystemVerilog featuring hazard detection and forwarding units.",
+            "Verified complete instruction coverage via automated UVM testbenches and FPGA synthesis on Xilinx Artix-7."
           ]
         },
         {
-          "name": "Network Packet Management",
-          "url": "https://github.com/Nafis-Walid/Network-Packet-Management",
+          "name": "Deterministic Asynchronous Task Runtime",
+          "role": "Creator & Maintainer",
+          "dates": "Oct 2022 -- Dec 2022",
           "bullets": [
-            "Developed a packet management system in C to parse captured UDP packets into linked-list and hash-table data structures with reference counting and efficient packet lookup.",
-            "Applied low-level memory management, pointer manipulation, and data structure optimization for packet processing."
-          ]
-        },
-        {
-          "name": "Student Information Management",
-          "url": "https://github.com/Nafis-Walid/Student-Management-Project",
-          "bullets": [
-            "Developed a console-based student information management system in C using doubly linked lists and modular programming.",
-            "Implemented file-based persistent storage with complete CRUD operations for departments, students, and academic records."
-          ]
-        },
-        {
-          "name": "BitMap Set Library",
-          "url": "https://github.com/Nafis-Walid/BitMap",
-          "bullets": [
-            "Implemented a memory-efficient Bitmap Set Library in C supporting dynamic creation, cloning, value management, string parsing, and bitwise operations (NOT/AND/OR/XOR)."
-          ]
-        },
-        {
-          "name": "Handwritten Digit Recognizer",
-          "url": "https://github.com/Nafis-Walid/Hand-Written-Digit-Recognition.git",
-          "bullets": [
-            "An AI-based deep learning project using Python and Deep Neural Networks (DNN) for optical digit recognition."
-          ]
-        },
-        {
-          "name": "Re-Trip",
-          "url": "https://github.com/Nafis-Walid/CSE-3200-Project.git",
-          "bullets": [
-            "A web-based application designed to resell and manage train ticket reservations."
+            "Built a zero-allocation task scheduler in modern C++20 for hard real-time sensor networks.",
+            "Published open-source library garnering 450+ GitHub stars with 100% unit test line coverage."
           ]
         }
       ]
     },
     {
       "id": "teaching",
-      "title": "Teaching Experience",
+      "title": "Teaching & Academic Mentorship",
       "enabled": true,
       "type": "teaching",
       "items": [
         {
-          "role": "Private Tutor & Academic Mentor",
-          "institution": "Independent; Caretutor (Online Platform)",
-          "dates": "November, 2018 -- Present",
+          "role": "Graduate Teaching Assistant (CS 152: Computer Architecture)",
+          "institution": "UC Berkeley | Berkeley, CA",
+          "dates": "Spring 2023",
           "bullets": [
-            "Provided sustained academic mentoring to undergraduate and pre-university students in Computer Science, Engineering, and Mathematics, emphasizing analytical thinking, problem-solving, and strong programming fundamentals.",
-            "Taught core Computer Science courses including C/C++ Programming, Embedded Systems, Computer Networks, Database Systems, Digital Logic Design, Computer Architecture, Microprocessors & Assembly Language, and Peripherals & Interfacing.",
-            "Designed and demonstrated hands-on embedded C programming exercises involving GPIO, timers, UART communication, LCD interfacing, PWM-based LED breathing effects, DC motor control, and stepper motor control.",
-            "Delivered instruction in foundational and advanced mathematics, including Linear Algebra, Numerical Methods, Differential & Integral Calculus, and Ordinary/Partial Differential Equations.",
-            "Covered theoretical computer science topics such as Finite Automata, Formal Languages & Compiler Design, and Soft Computing, emphasizing formal reasoning and algorithmic thinking.",
-            "Mentored students from international universities, including the University of Bridgeport (USA) and the University of Wollongong (Australia), as well as leading universities in Bangladesh including NSU, AUST, and AIUB.",
-            "Conducted supplementary lectures and peer mentoring at the university level on challenging technical subjects.",
-            "Successfully guided HSC/SSC students and engineering admission candidates, with multiple students gaining admission to leading engineering universities in Bangladesh."
+            "Led weekly lab sessions of 45+ students covering pipeline stalls, branch prediction, and memory hierarchies.",
+            "Designed automated grading harnesses for RISC-V assembly simulation assignments."
           ]
         }
       ]
     },
     {
       "id": "skills",
-      "title": "Skills",
+      "title": "Technical Skills & Competencies",
       "enabled": true,
       "type": "skills",
       "categories": [
         {
-          "title": "Technical Skills",
+          "title": "Languages & Systems",
           "items": [
             {
               "label": "Programming Languages",
-              "value": "C, C++, Embedded C, Python, Assembly (8086), Java, Matlab"
+              "value": "C, C++ (C++20), Rust, Python, SystemVerilog, Bash, x86/RISC-V Assembly"
             },
             {
-              "label": "Embedded Systems & Firmware",
-              "value": "Embedded Firmware Development, Linux, VxWorks, GPON/EPON, Ethernet Switching, TFTP, CLI"
+              "label": "Systems & Tools",
+              "value": "Linux Kernel, FreeRTOS, QEMU, GDB, CMake, Git, Docker, Valgrind, LaTeX"
             },
             {
-              "label": "Networking Protocols",
-              "value": "TCP/IP, UDP, IPv4/IPv6, DHCPv4, DHCPv6, PPPoE, IGMP/MLD Snooping, OMCI, TR-069, VLAN, Multicast"
-            },
-            {
-              "label": "Web & Databases",
-              "value": "HTML, CSS, Bootstrap, JavaScript, MySQL, PostgreSQL"
-            },
-            {
-              "label": "AI & Machine Learning",
-              "value": "Deep Neural Networks (DNN), Convolutional Neural Networks (CNN), Machine Learning, Computer Vision"
-            },
-            {
-              "label": "Development Tools & Workspaces",
-              "value": "SVN, Git/GitHub, Wireshark, SecureCRT, GDB, GNU Make, Cisco Packet Tracer, Logisim, Digital, Tinkercad, Figma, Adobe XD, Adobe Illustrator, Adobe Photoshop, Microsoft Office"
-            },
-            {
-              "label": "Core Concepts",
-              "value": "Computer Architecture, Operating Systems, Data Structures & Algorithms, Digital Logic Design, Microprocessors & Microcontrollers, Compiler Design, Hardware-Software Co-Design, Object-Oriented Programming (OOP)"
+              "label": "Hardware & Peripherals",
+              "value": "ARM Cortex-M, FPGA (Vivado), PCIe, Ethernet, SPI, I2C, CAN Bus, Logic Analyzers"
             }
           ]
         },
         {
-          "title": "Problem Solving / Competitive Programming",
+          "title": "Core Domains",
           "items": [
             {
-              "label": "Codeforces",
-              "value": "Nafis_Walid -- 380+ problems solved, 60+ contests",
-              "url": "https://codeforces.com/profile/Nafis_Walid"
-            },
-            {
-              "label": "LeetCode",
-              "value": "Nafis_Walid -- 100+ problems solved",
-              "url": "https://leetcode.com/u/Nafis_Walid/"
-            },
-            {
-              "label": "LightOJ",
-              "value": "nafis_walid",
-              "url": "https://lightoj.com/user/nafis_walid"
-            }
-          ]
-        },
-        {
-          "title": "Languages & Soft Skills",
-          "items": [
-            {
-              "label": "Languages",
-              "value": "Bengali (Native), English (Professional Working Proficiency)"
-            },
-            {
-              "label": "Soft Skills",
-              "value": "Problem Solving, Critical Thinking, Leadership, Team Collaboration, Technical Communication, Event Management"
+              "label": "Architecture",
+              "value": "Microprocessor Design, Cache Coherence, DMA, Pipelining, Memory Hierarchies"
             }
           ]
         }
@@ -266,45 +194,45 @@
     },
     {
       "id": "awards",
-      "title": "Achievements & Awards",
+      "title": "Honors & Achievements",
       "enabled": true,
       "type": "awards",
       "items": [
         {
-          "title": "Fundamental IT Engineer Examination (FE)",
-          "organization": "Bangladesh Computer Council (BCC) & Information Technology Promotion Agency (IPA), Japan",
+          "title": "First Place Winner, National Embedded Systems Hackathon",
+          "organization": "IEEE Computer Society",
           "bullets": [
-            "Successfully passed the internationally recognized Fundamental IT Engineer Examination (FE) conducted through the Bangladesh IT Engineers Examination Center (BD-ITEC).",
-            "Awarded the Certificate of Excellence by the Information Technology Promotion Agency (IPA), Japan for achieving the 3rd highest score in Bangladesh."
+            "Awarded first place among 60+ university teams for real-time edge telemetry solution."
+          ]
+        },
+        {
+          "title": "EECS Departmental Academic Excellence Fellowship",
+          "organization": "UC Berkeley College of Engineering",
+          "bullets": [
+            "Conferred merit fellowship in recognition of outstanding GPA and undergraduate research contributions."
           ]
         }
       ]
     },
     {
       "id": "volunteer",
-      "title": "Volunteer Activities",
+      "title": "Community & Leadership",
       "enabled": true,
       "type": "volunteer",
       "items": [
         {
-          "role": "Class Representative",
-          "dates": "January, 2020 -- February, 2023",
+          "role": "Open-Source Lead, Robotics & Hardware Club",
+          "dates": "September 2021 -- May 2023",
           "bullets": [
-            "Department of Computer Science & Engineering, RUET"
-          ]
-        },
-        {
-          "role": "Graphics Designer",
-          "dates": "February, 2020 -- June, 2023",
-          "bullets": [
-            "Astronomy & Science Society of RUET(ASSR)"
+            "Organized 12 hands-on microcontroller workshops for over 200 incoming engineering students.",
+            "Maintained open hardware documentation and PCB layout starter kits."
           ]
         }
       ]
     },
     {
       "id": "references",
-      "title": "References",
+      "title": "Professional References",
       "enabled": true,
       "type": "text",
       "text": "Available upon request."

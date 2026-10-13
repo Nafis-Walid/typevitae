@@ -1,0 +1,241 @@
+{
+  "header": {
+    "name": "Alex Morgan",
+    "includePhoto": false,
+    "photoPath": "photo.png",
+    "email": "alex.morgan@example.com",
+    "phone": "+1 (555) 234-5678",
+    "address": "San Francisco, CA 94107",
+    "linkedin": "https://linkedin.com/in/alex-morgan",
+    "linkedinLabel": "LinkedIn",
+    "github": "https://github.com/alexmorgan",
+    "githubLabel": "GitHub"
+  },
+  "activePreset": "master",
+  "sections": [
+    {
+      "id": "career_objective",
+      "title": "Career Objectives & Profiles",
+      "enabled": true,
+      "type": "profiles",
+      "profiles": [
+        {
+          "name": "Embedded Software Engineering (Industry)",
+          "enabled": true,
+          "text": "Systems and Embedded Software Engineer with expertise in low-level systems programming, firmware development, and networking protocols. Seeking to design and optimize mission-critical, high-reliability embedded platforms while advancing modern computer architecture paradigms."
+        },
+        {
+          "name": "Academic & Higher Education (Lecturer in CSE)",
+          "enabled": true,
+          "text": "Passionate educator and researcher dedicated to student mentorship and research-driven instruction. Seeking a faculty position to advance computing curricula, conduct systems research, and empower undergraduate engineering talent."
+        },
+        {
+          "name": "Hardware Systems & Processor Architecture (VLSI)",
+          "enabled": true,
+          "text": "Hardware-software co-design enthusiast with hands-on experience in CPU architecture, instruction set simulation, and digital VLSI synthesis. Seeking to explore scalable silicon microarchitectures and specialized accelerator engines."
+        },
+        {
+          "name": "Human-Computer Interaction (HCI & Social Impact)",
+          "enabled": true,
+          "text": "Human-centered computing advocate focused on bridging digital literacy divides through accessible user interfaces, contextual computing, and equitable technology access."
+        }
+      ]
+    },
+    {
+      "id": "education",
+      "title": "Educational Qualification",
+      "enabled": true,
+      "type": "items_degree",
+      "items": [
+        {
+          "degree": "Bachelor of Science in Computer Science & Engineering",
+          "dates": "September 2019 -- June 2023",
+          "institution": "University of California, Berkeley | Berkeley, CA",
+          "grade": "GPA: 3.85 / 4.00 (Distinction)"
+        },
+        {
+          "degree": "High School Diploma (Honors)",
+          "dates": "August 2015 -- May 2019",
+          "institution": "Lincoln High School | San Francisco, CA",
+          "grade": "GPA: 4.00 / 4.00"
+        }
+      ]
+    },
+    {
+      "id": "research_interests",
+      "title": "Research Interests",
+      "enabled": true,
+      "type": "text",
+      "text": "Computer Architecture, Embedded Operating Systems, Real-Time Distributed Systems, Hardware-Software Co-Design, Low-Power Microcontroller Optimization, and Compiler Engineering."
+    },
+    {
+      "id": "publications",
+      "title": "Selected Publications",
+      "enabled": true,
+      "type": "publications",
+      "items": [
+        {
+          "authors": "Alex Morgan, Elena Rostova, Marcus Vance",
+          "title": "Efficient Cache Coherence Schemes for Embedded Heterogeneous Multi-Cores",
+          "venue": "IEEE International Symposium on Computer Architecture (ISCA)",
+          "year": "2023"
+        },
+        {
+          "authors": "Alex Morgan, David K. Chen",
+          "title": "Zero-Copy IPC Mechanisms for Deterministic Real-Time Microkernels",
+          "venue": "ACM SIGBED International Conference on Embedded Software (EMSOFT)",
+          "year": "2022"
+        }
+      ]
+    },
+    {
+      "id": "experience",
+      "title": "Professional Experience",
+      "enabled": true,
+      "type": "experience",
+      "items": [
+        {
+          "role": "Senior Systems Engineer",
+          "company": "Apex Technologies | San Francisco, CA",
+          "dates": "July 2023 -- Present",
+          "bullets": [
+            "Architected low-latency C/C++ firmware pipelines for high-throughput edge inference devices, reducing P99 latency by 34%.",
+            "Implemented DMA ring buffer memory drivers in Linux kernel space, achieving zero dropped packets under 10 Gbps peak load.",
+            "Mentored 4 junior engineers on deterministic state machine design and concurrency validation."
+          ]
+        },
+        {
+          "role": "Embedded Firmware Engineering Intern",
+          "company": "Silicon Edge Labs | San Jose, CA",
+          "dates": "May 2022 -- August 2022",
+          "bullets": [
+            "Developed FreeRTOS device drivers for SPI, I2C, and UART peripherals on ARM Cortex-M4 microcontrollers.",
+            "Reduced idle standby power draw by 42% through aggressive peripheral power-gating and clock scaling."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "projects",
+      "title": "Key Engineering Projects",
+      "enabled": true,
+      "type": "projects",
+      "items": [
+        {
+          "name": "RISC-V 32-Bit Pipelined Microprocessor",
+          "role": "Lead Architect",
+          "dates": "Jan 2023 -- May 2023",
+          "bullets": [
+            "Designed and synthesized a 5-stage pipelined RV32I core in SystemVerilog featuring hazard detection and forwarding units.",
+            "Verified complete instruction coverage via automated UVM testbenches and FPGA synthesis on Xilinx Artix-7."
+          ]
+        },
+        {
+          "name": "Deterministic Asynchronous Task Runtime",
+          "role": "Creator & Maintainer",
+          "dates": "Oct 2022 -- Dec 2022",
+          "bullets": [
+            "Built a zero-allocation task scheduler in modern C++20 for hard real-time sensor networks.",
+            "Published open-source library garnering 450+ GitHub stars with 100% unit test line coverage."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "teaching",
+      "title": "Teaching & Academic Mentorship",
+      "enabled": true,
+      "type": "teaching",
+      "items": [
+        {
+          "role": "Graduate Teaching Assistant (CS 152: Computer Architecture)",
+          "institution": "UC Berkeley | Berkeley, CA",
+          "dates": "Spring 2023",
+          "bullets": [
+            "Led weekly lab sessions of 45+ students covering pipeline stalls, branch prediction, and memory hierarchies.",
+            "Designed automated grading harnesses for RISC-V assembly simulation assignments."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "skills",
+      "title": "Technical Skills & Competencies",
+      "enabled": true,
+      "type": "skills",
+      "categories": [
+        {
+          "title": "Languages & Systems",
+          "items": [
+            {
+              "label": "Programming Languages",
+              "value": "C, C++ (C++20), Rust, Python, SystemVerilog, Bash, x86/RISC-V Assembly"
+            },
+            {
+              "label": "Systems & Tools",
+              "value": "Linux Kernel, FreeRTOS, QEMU, GDB, CMake, Git, Docker, Valgrind, LaTeX"
+            },
+            {
+              "label": "Hardware & Peripherals",
+              "value": "ARM Cortex-M, FPGA (Vivado), PCIe, Ethernet, SPI, I2C, CAN Bus, Logic Analyzers"
+            }
+          ]
+        },
+        {
+          "title": "Core Domains",
+          "items": [
+            {
+              "label": "Architecture",
+              "value": "Microprocessor Design, Cache Coherence, DMA, Pipelining, Memory Hierarchies"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "awards",
+      "title": "Honors & Achievements",
+      "enabled": true,
+      "type": "awards",
+      "items": [
+        {
+          "title": "First Place Winner, National Embedded Systems Hackathon",
+          "organization": "IEEE Computer Society",
+          "bullets": [
+            "Awarded first place among 60+ university teams for real-time edge telemetry solution."
+          ]
+        },
+        {
+          "title": "EECS Departmental Academic Excellence Fellowship",
+          "organization": "UC Berkeley College of Engineering",
+          "bullets": [
+            "Conferred merit fellowship in recognition of outstanding GPA and undergraduate research contributions."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "volunteer",
+      "title": "Community & Leadership",
+      "enabled": true,
+      "type": "volunteer",
+      "items": [
+        {
+          "role": "Open-Source Lead, Robotics & Hardware Club",
+          "dates": "September 2021 -- May 2023",
+          "bullets": [
+            "Organized 12 hands-on microcontroller workshops for over 200 incoming engineering students.",
+            "Maintained open hardware documentation and PCB layout starter kits."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "references",
+      "title": "Professional References",
+      "enabled": true,
+      "type": "text",
+      "text": "Available upon request."
+    }
+  ]
+}
